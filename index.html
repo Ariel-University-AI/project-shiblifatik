@@ -1,0 +1,1480 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>מערכת ניהול משרד מדידות</title>
+<meta name="description" content="מערכת ניהול מקצועית למשרד מדידות קרקע - פרויקטים, עובדים ודוחות">
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg-primary:#0a0e1a;
+  --bg-secondary:#111827;
+  --bg-card:#1a2235;
+  --bg-card-hover:#1e2a40;
+  --accent:#3b82f6;
+  --accent-light:#60a5fa;
+  --accent-dark:#1d4ed8;
+  --success:#10b981;
+  --warning:#f59e0b;
+  --danger:#ef4444;
+  --info:#06b6d4;
+  --text-primary:#f1f5f9;
+  --text-secondary:#94a3b8;
+  --text-muted:#64748b;
+  --border:#1e2d45;
+  --border-light:#2d3f5c;
+  --shadow:0 4px 24px rgba(0,0,0,.4);
+  --shadow-lg:0 8px 48px rgba(0,0,0,.6);
+  --radius:12px;
+  --radius-sm:8px;
+  --radius-lg:16px;
+}
+body{font-family:'Heebo',sans-serif;background:var(--bg-primary);color:var(--text-primary);min-height:100vh;direction:rtl}
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:var(--bg-primary)}
+::-webkit-scrollbar-thumb{background:var(--border-light);border-radius:3px}
+
+/* LOGIN */
+#loginPage{min-height:100vh;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse at top,#1a2744 0%,#0a0e1a 70%);position:relative;overflow:hidden}
+#loginPage::before{content:'';position:absolute;width:600px;height:600px;background:radial-gradient(circle,rgba(59,130,246,.15) 0%,transparent 70%);top:-200px;left:50%;transform:translateX(-50%)}
+.login-card{background:rgba(26,34,53,.95);backdrop-filter:blur(20px);border:1px solid var(--border);border-radius:var(--radius-lg);padding:48px 40px;width:420px;box-shadow:var(--shadow-lg);position:relative;z-index:1}
+.login-logo{text-align:center;margin-bottom:32px}
+.login-logo .icon{font-size:52px;display:block;margin-bottom:12px}
+.login-logo h1{font-size:26px;font-weight:800}
+.login-logo p{color:var(--text-secondary);font-size:14px;margin-top:4px}
+.login-hint{margin-top:16px;text-align:center;font-size:12px;color:var(--text-muted);padding:10px;background:rgba(59,130,246,.05);border-radius:var(--radius-sm);border:1px solid rgba(59,130,246,.1)}
+.login-hint strong{color:var(--text-secondary)}
+
+/* FORM */
+.form-group{margin-bottom:18px}
+.form-group label{display:block;font-size:13px;font-weight:600;color:var(--text-secondary);margin-bottom:7px}
+.form-control{width:100%;background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:11px 14px;color:var(--text-primary);font-family:'Heebo',sans-serif;font-size:15px;transition:all .2s;direction:rtl}
+.form-control:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(59,130,246,.15)}
+.form-control::placeholder{color:var(--text-muted)}
+select.form-control{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2364748b' d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:left 12px center}
+textarea.form-control{resize:vertical;min-height:90px}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:11px 22px;border-radius:var(--radius-sm);border:none;cursor:pointer;font-family:'Heebo',sans-serif;font-size:14px;font-weight:600;transition:all .2s;text-decoration:none;white-space:nowrap}
+.btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent-dark));color:#fff;box-shadow:0 4px 15px rgba(59,130,246,.3)}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(59,130,246,.45)}
+.btn-secondary{background:var(--bg-card);color:var(--text-primary);border:1px solid var(--border)}
+.btn-secondary:hover{background:var(--bg-card-hover);border-color:var(--border-light)}
+.btn-success{background:linear-gradient(135deg,#10b981,#059669);color:#fff;box-shadow:0 4px 12px rgba(16,185,129,.3)}
+.btn-danger{background:linear-gradient(135deg,#ef4444,#dc2626);color:#fff}
+.btn-warning{background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff}
+.btn-sm{padding:7px 14px;font-size:13px}
+.btn-lg{padding:14px 32px;font-size:16px}
+.btn-block{width:100%}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none!important;box-shadow:none!important}
+
+/* APP LAYOUT */
+#app{display:none;min-height:100vh}
+.layout{display:flex;min-height:100vh}
+
+/* SIDEBAR */
+.sidebar{width:252px;background:var(--bg-secondary);border-left:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;right:0;bottom:0;z-index:100}
+.sidebar-header{padding:20px 18px;border-bottom:1px solid var(--border)}
+.sidebar-brand{display:flex;align-items:center;gap:11px}
+.brand-icon{width:38px;height:38px;background:linear-gradient(135deg,var(--accent),var(--accent-dark));border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.brand-text h2{font-size:15px;font-weight:700}
+.brand-text p{font-size:11px;color:var(--text-secondary)}
+.sidebar-nav{flex:1;padding:14px 10px;overflow-y:auto}
+.nav-section-title{font-size:10px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:1.2px;padding:8px 10px 4px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:11px 12px;border-radius:var(--radius-sm);cursor:pointer;transition:all .2s;color:var(--text-secondary);margin-bottom:2px;user-select:none}
+.nav-item:hover{background:var(--bg-card);color:var(--text-primary)}
+.nav-item.active{background:rgba(59,130,246,.12);color:var(--accent-light);border:1px solid rgba(59,130,246,.2)}
+.nav-item .nav-icon{font-size:17px;width:22px;text-align:center}
+.nav-item .nav-label{font-size:13px;font-weight:500}
+.nav-item .nav-badge{margin-right:auto;background:var(--danger);color:#fff;font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px}
+.sidebar-footer{padding:14px;border-top:1px solid var(--border)}
+.user-info{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg-card);border-radius:var(--radius-sm);margin-bottom:8px}
+.user-avatar{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:#fff;flex-shrink:0}
+.user-details .user-name{font-size:13px;font-weight:600}
+.user-details .user-role{font-size:11px;color:var(--text-secondary)}
+
+/* MAIN CONTENT */
+.main-content{flex:1;margin-right:252px;min-height:100vh;display:flex;flex-direction:column}
+.topbar{background:var(--bg-secondary);border-bottom:1px solid var(--border);padding:0 24px;height:62px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+.topbar-title h3{font-size:17px;font-weight:700}
+.topbar-title p{font-size:11px;color:var(--text-muted);margin-top:1px}
+.topbar-actions{display:flex;align-items:center;gap:10px}
+.page-content{flex:1;padding:22px}
+
+/* STATS */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:22px}
+.stat-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:18px;transition:all .2s;position:relative;overflow:hidden;cursor:default}
+.stat-card::after{content:'';position:absolute;top:-20px;left:-20px;width:90px;height:90px;border-radius:50%;opacity:.08}
+.stat-card.blue::after{background:var(--accent)}
+.stat-card.green::after{background:var(--success)}
+.stat-card.yellow::after{background:var(--warning)}
+.stat-card.red::after{background:var(--danger)}
+.stat-card.cyan::after{background:var(--info)}
+.stat-card:hover{border-color:var(--border-light);transform:translateY(-2px);box-shadow:var(--shadow)}
+.stat-icon{font-size:26px;margin-bottom:10px;display:block}
+.stat-value{font-size:30px;font-weight:800;line-height:1;margin-bottom:4px}
+.stat-label{font-size:12px;color:var(--text-secondary)}
+
+/* CARD */
+.card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:0}
+.card-header{padding:16px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.card-title{font-size:15px;font-weight:700}
+.card-body{padding:18px}
+
+/* TABLE */
+.table-wrapper{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+thead tr{border-bottom:2px solid var(--border)}
+thead th{padding:11px 14px;text-align:right;font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;background:rgba(0,0,0,.15);white-space:nowrap}
+tbody tr{border-bottom:1px solid var(--border);transition:background .15s}
+tbody tr:hover{background:rgba(255,255,255,.025)}
+tbody tr:last-child{border-bottom:none}
+tbody td{padding:12px 14px;vertical-align:middle}
+
+/* BADGE */
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600;white-space:nowrap}
+.badge-blue{background:rgba(59,130,246,.12);color:#60a5fa;border:1px solid rgba(59,130,246,.25)}
+.badge-green{background:rgba(16,185,129,.12);color:#34d399;border:1px solid rgba(16,185,129,.25)}
+.badge-yellow{background:rgba(245,158,11,.12);color:#fbbf24;border:1px solid rgba(245,158,11,.25)}
+.badge-red{background:rgba(239,68,68,.12);color:#f87171;border:1px solid rgba(239,68,68,.25)}
+.badge-gray{background:rgba(100,116,139,.12);color:#94a3b8;border:1px solid rgba(100,116,139,.25)}
+.badge-cyan{background:rgba(6,182,212,.12);color:#22d3ee;border:1px solid rgba(6,182,212,.25)}
+.badge-purple{background:rgba(139,92,246,.12);color:#a78bfa;border:1px solid rgba(139,92,246,.25)}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(4px);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .2s}
+.modal-overlay.show{opacity:1;pointer-events:all}
+.modal{background:var(--bg-card);border:1px solid var(--border-light);border-radius:var(--radius-lg);width:100%;max-width:580px;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow-lg);transform:translateY(20px);transition:transform .2s}
+.modal-overlay.show .modal{transform:translateY(0)}
+.modal-lg{max-width:780px}
+.modal-header{padding:18px 22px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--bg-card);z-index:1}
+.modal-header h3{font-size:17px;font-weight:700}
+.modal-close{background:none;border:none;color:var(--text-secondary);cursor:pointer;font-size:20px;line-height:1;padding:5px;border-radius:6px;transition:all .2s}
+.modal-close:hover{background:var(--bg-primary);color:var(--text-primary)}
+.modal-body{padding:22px}
+.modal-footer{padding:14px 22px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:10px;position:sticky;bottom:0;background:var(--bg-card)}
+
+/* FORM LAYOUT */
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.form-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.form-group{margin-bottom:0}
+.form-stack .form-group{margin-bottom:16px}
+
+/* ALERT */
+.alert{padding:13px 16px;border-radius:var(--radius-sm);font-size:13px;display:flex;align-items:flex-start;gap:10px;margin-bottom:14px}
+.alert-icon{font-size:17px;flex-shrink:0;margin-top:1px}
+.alert-content{}
+.alert-title{font-weight:700;margin-bottom:3px}
+.alert-text{color:var(--text-secondary);font-size:12px}
+.alert-warning{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.25)}
+.alert-warning .alert-title{color:var(--warning)}
+.alert-danger{background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.25)}
+.alert-danger .alert-title{color:var(--danger)}
+.alert-info{background:rgba(6,182,212,.08);border:1px solid rgba(6,182,212,.25)}
+.alert-info .alert-title{color:var(--info)}
+.alert-success{background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.25)}
+.alert-success .alert-title{color:var(--success)}
+
+/* TOAST */
+#toastContainer{position:fixed;bottom:22px;left:22px;z-index:9999;display:flex;flex-direction:column;gap:8px}
+.toast{background:var(--bg-card);border:1px solid var(--border-light);border-radius:var(--radius-sm);padding:12px 16px;min-width:260px;max-width:360px;box-shadow:var(--shadow);display:flex;align-items:center;gap:10px;font-size:13px;font-weight:500;animation:toastIn .3s ease}
+.toast-success{border-right:4px solid var(--success)}
+.toast-error{border-right:4px solid var(--danger)}
+.toast-warning{border-right:4px solid var(--warning)}
+.toast-info{border-right:4px solid var(--accent)}
+@keyframes toastIn{from{opacity:0;transform:translateX(-16px)}to{opacity:1;transform:translateX(0)}}
+
+/* TIMER */
+.timer-display{font-size:54px;font-weight:900;font-variant-numeric:tabular-nums;color:var(--accent-light);text-align:center;padding:22px;background:rgba(59,130,246,.05);border:1px solid rgba(59,130,246,.15);border-radius:var(--radius);margin:14px 0;letter-spacing:3px}
+.timer-running{color:var(--success)!important;border-color:rgba(16,185,129,.3)!important;background:rgba(16,185,129,.05)!important}
+
+/* SEARCH */
+.search-bar{display:flex;gap:10px;margin-bottom:18px;align-items:center;flex-wrap:wrap}
+.search-input{flex:1;min-width:180px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:9px 14px;color:var(--text-primary);font-family:'Heebo',sans-serif;font-size:13px;transition:all .2s;direction:rtl}
+.search-input:focus{outline:none;border-color:var(--accent)}
+
+/* TABS */
+.tabs{display:flex;gap:3px;margin-bottom:18px;background:var(--bg-secondary);padding:4px;border-radius:var(--radius-sm);border:1px solid var(--border)}
+.tab-btn{flex:1;padding:9px 14px;background:none;border:none;color:var(--text-secondary);cursor:pointer;border-radius:6px;font-family:'Heebo',sans-serif;font-size:13px;font-weight:500;transition:all .2s}
+.tab-btn.active{background:var(--bg-card);color:var(--text-primary);box-shadow:0 1px 4px rgba(0,0,0,.3)}
+
+/* EMPLOYEE CARDS */
+.employee-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:14px}
+.employee-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;transition:all .2s}
+.employee-card:hover{border-color:var(--border-light);box-shadow:var(--shadow)}
+.employee-card-header{padding:18px;display:flex;align-items:center;gap:14px;border-bottom:1px solid var(--border)}
+.emp-avatar-lg{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;color:#fff;flex-shrink:0}
+.emp-info h3{font-size:16px;font-weight:700}
+.emp-info p{font-size:12px;color:var(--text-secondary);margin-top:2px}
+.employee-card-body{padding:14px 18px 18px}
+.task-list{list-style:none}
+.task-item{padding:10px 12px;background:var(--bg-secondary);border-radius:var(--radius-sm);margin-bottom:7px;border-right:3px solid var(--accent);transition:all .2s}
+.task-item:hover{background:rgba(255,255,255,.03)}
+.task-item .th{display:flex;justify-content:space-between;align-items:center;margin-bottom:3px}
+.task-item .tn{font-weight:600;font-size:12px}
+.task-item .tt{font-size:11px;color:var(--accent-light);font-variant-numeric:tabular-nums}
+.task-item .tp{font-size:11px;color:var(--text-secondary)}
+.task-item .td{font-size:11px;color:var(--text-muted);margin-top:3px}
+
+/* REPORT */
+.report-header{background:linear-gradient(135deg,#1d4ed8,#1e1b4b 60%,#0a0e1a);border-radius:var(--radius);padding:28px;margin-bottom:18px;text-align:center;border:1px solid rgba(59,130,246,.25)}
+.report-header h2{font-size:22px;font-weight:800;margin-bottom:6px}
+.report-header p{color:rgba(255,255,255,.65);font-size:13px}
+.report-summary{display:flex;gap:24px;justify-content:center;margin-top:18px;flex-wrap:wrap}
+.rs-item{text-align:center}
+.rs-item .rv{font-size:28px;font-weight:800}
+.rs-item .rl{font-size:11px;color:rgba(255,255,255,.55);margin-top:2px}
+.report-emp-section{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:14px;overflow:hidden}
+.report-emp-header{padding:14px 18px;display:flex;align-items:center;gap:14px;background:rgba(0,0,0,.2);border-bottom:1px solid var(--border)}
+.re-name{font-size:15px;font-weight:700}
+.re-stats{margin-right:auto;display:flex;gap:18px}
+.re-stat{font-size:12px;color:var(--text-secondary)}
+.re-stat span{color:var(--text-primary);font-weight:600}
+.report-task-row{padding:11px 18px;border-bottom:1px solid var(--border);display:grid;grid-template-columns:2fr 2fr 1fr 1fr;gap:10px;align-items:center;font-size:12px}
+.report-task-row:last-child{border-bottom:none}
+.rtc-label{color:var(--text-muted);font-size:10px;margin-bottom:2px;text-transform:uppercase}
+.rtc-val{font-weight:500}
+
+/* DUPLICATE ALERT */
+.dup-alert{background:rgba(245,158,11,.08);border:2px solid rgba(245,158,11,.4);border-radius:var(--radius-sm);padding:14px;margin-bottom:16px;display:none}
+.dup-alert.show{display:block}
+.dup-alert.danger-dup{background:rgba(239,68,68,.08);border-color:rgba(239,68,68,.4)}
+.dup-alert h4{color:var(--warning);margin-bottom:8px;display:flex;align-items:center;gap:7px;font-size:14px}
+.dup-alert.danger-dup h4{color:var(--danger)}
+.dup-info{font-size:12px;color:var(--text-secondary);line-height:1.6}
+.dup-info strong{color:var(--text-primary)}
+.dup-actions{margin-top:10px;display:flex;gap:7px;flex-wrap:wrap}
+
+/* GRID / LAYOUT */
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.mb-4{margin-bottom:16px}
+.mb-5{margin-bottom:22px}
+.mt-3{margin-top:12px}
+.flex{display:flex}
+.flex-between{display:flex;justify-content:space-between;align-items:center}
+.gap-2{gap:8px}
+.action-btns{display:flex;gap:5px}
+
+/* EMPTY STATE */
+.empty-state{text-align:center;padding:52px 20px;color:var(--text-muted)}
+.empty-state .ei{font-size:44px;margin-bottom:14px;display:block}
+.empty-state h3{font-size:17px;font-weight:600;color:var(--text-secondary);margin-bottom:7px}
+.empty-state p{font-size:13px}
+
+/* SETTINGS */
+.settings-row{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:var(--bg-secondary);border-radius:var(--radius-sm);margin-bottom:8px;border:1px solid var(--border)}
+.settings-label h4{font-size:13px;font-weight:600}
+.settings-label p{font-size:11px;color:var(--text-secondary);margin-top:2px}
+.settings-section{margin-bottom:22px}
+.settings-section h3{font-size:14px;font-weight:700;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+
+/* ACTIVITY */
+.activity-item{display:flex;gap:10px;margin-bottom:10px}
+.a-dot{width:9px;height:9px;border-radius:50%;background:var(--accent);flex-shrink:0;margin-top:4px}
+.a-text{font-size:12px}
+.a-time{font-size:10px;color:var(--text-muted);margin-top:2px}
+
+/* UTILITY */
+.d-none{display:none!important}
+.text-success{color:var(--success)}
+.text-danger{color:var(--danger)}
+.text-warning{color:var(--warning)}
+.text-muted{color:var(--text-muted)}
+.text-accent{color:var(--accent-light)}
+.fw-bold{font-weight:700}
+.text-center{text-align:center}
+.w-full{width:100%}
+
+/* PRINT */
+@media print{
+  .sidebar,.topbar,.no-print,.topbar-actions{display:none!important}
+  .main-content{margin-right:0!important}
+  body{background:#fff;color:#000}
+  .report-header{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+
+/* MOBILE */
+@media(max-width:768px){
+  .sidebar{transform:translateX(100%)}
+  .sidebar.open{transform:translateX(0)}
+  .main-content{margin-right:0}
+  .form-row,.form-row-3,.grid-2,.grid-3{grid-template-columns:1fr}
+  .stats-grid{grid-template-columns:1fr 1fr}
+  .report-task-row{grid-template-columns:1fr 1fr}
+  .login-card{width:95%;padding:32px 24px}
+}
+</style>
+</head>
+<body>
+
+<!-- ==================== LOGIN ==================== -->
+<div id="loginPage">
+  <div class="login-card">
+    <div class="login-logo">
+      <span class="icon">📐</span>
+      <h1>משרד מדידות</h1>
+      <p>מערכת ניהול מקצועית</p>
+    </div>
+    <div id="loginAlert" class="alert alert-danger d-none">
+      <span class="alert-icon">⚠️</span>
+      <div class="alert-content">
+        <div class="alert-title">שגיאת כניסה</div>
+        <div id="loginAlertText" class="alert-text"></div>
+      </div>
+    </div>
+    <div class="form-stack">
+      <div class="form-group mb-4">
+        <label>שם משתמש</label>
+        <input type="text" id="loginUser" class="form-control" placeholder="הזן שם משתמש" autocomplete="username">
+      </div>
+      <div class="form-group mb-4">
+        <label>סיסמה</label>
+        <input type="password" id="loginPass" class="form-control" placeholder="הזן סיסמה" autocomplete="current-password">
+      </div>
+    </div>
+    <button id="loginBtn" class="btn btn-primary btn-block btn-lg" onclick="doLogin()">🔑 כניסה למערכת</button>
+    <div class="login-hint">
+      <strong>ברירת מחדל:</strong> admin / admin123<br>
+      עובדים: emp1/emp1 · emp2/emp2 · field1/field1
+    </div>
+  </div>
+</div>
+
+<!-- ==================== APP ==================== -->
+<div id="app">
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-brand">
+        <div class="brand-icon">📐</div>
+        <div class="brand-text">
+          <h2>משרד מדידות</h2>
+          <p>מערכת ניהול</p>
+        </div>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-title">ניווט ראשי</div>
+      <div class="nav-item active" id="nav-dashboard" onclick="goTo('dashboard')">
+        <span class="nav-icon">🏠</span><span class="nav-label">לוח בקרה</span>
+      </div>
+      <div class="nav-item" id="nav-projects" onclick="goTo('projects')">
+        <span class="nav-icon">📁</span><span class="nav-label">פרויקטים</span>
+        <span class="nav-badge d-none" id="activeBadge">0</span>
+      </div>
+      <div class="nav-item" id="nav-employees" onclick="goTo('employees')">
+        <span class="nav-icon">👥</span><span class="nav-label">עובדים ומשימות</span>
+      </div>
+      <div class="nav-item" id="nav-reports" onclick="goTo('reports')">
+        <span class="nav-icon">📊</span><span class="nav-label">דוחות</span>
+      </div>
+      <div class="nav-section-title" style="margin-top:10px">ניהול</div>
+      <div class="nav-item" id="nav-settings" onclick="goTo('settings')">
+        <span class="nav-icon">⚙️</span><span class="nav-label">הגדרות</span>
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <div class="user-avatar" id="sideAvatar" style="background:#3b82f6">מ</div>
+        <div class="user-details">
+          <div class="user-name" id="sideName">מנהל</div>
+          <div class="user-role" id="sideRole">מנהל מערכת</div>
+        </div>
+      </div>
+      <button class="btn btn-secondary btn-block btn-sm" onclick="doLogout()">🚪 יציאה</button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main-content">
+    <div class="topbar">
+      <div class="topbar-title">
+        <h3 id="pageTitle">לוח בקרה</h3>
+        <p id="pageSub">סקירה כללית</p>
+      </div>
+      <div class="topbar-actions">
+        <span id="clockDisplay" style="font-size:12px;color:var(--text-muted);font-variant-numeric:tabular-nums"></span>
+        <button class="btn btn-primary btn-sm" id="btnNewProject" onclick="openNewProj()">+ פרויקט חדש</button>
+      </div>
+    </div>
+
+    <div class="page-content">
+
+      <!-- DASHBOARD -->
+      <div id="pg-dashboard">
+        <div class="stats-grid" id="statsGrid"></div>
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">📋 פרויקטים אחרונים</span>
+              <button class="btn btn-secondary btn-sm" onclick="goTo('projects')">הצג הכל</button>
+            </div>
+            <div class="card-body" id="recentProjs"></div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">⚡ פעילות היום</span>
+              <span id="todayDateLabel" style="font-size:11px;color:var(--text-muted)"></span>
+            </div>
+            <div class="card-body" id="todayAct"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PROJECTS -->
+      <div id="pg-projects" class="d-none">
+        <div class="search-bar">
+          <input type="text" class="search-input" id="projSearch" placeholder="🔍 חיפוש לפי גוש, חלקה, שם לקוח..." oninput="filterProjs()">
+          <select class="form-control" style="width:auto" id="filtStatus" onchange="filterProjs()">
+            <option value="">כל הסטטוסים</option>
+            <option>חדש</option><option>בתהליך</option><option>בשטח</option><option>הושלם</option><option>ארכיון</option>
+          </select>
+          <select class="form-control" style="width:auto" id="filtType" onchange="filterProjs()">
+            <option value="">כל סוגי העבודה</option>
+          </select>
+          <button class="btn btn-primary" onclick="openNewProj()">+ פרויקט חדש</button>
+          <button class="btn btn-secondary no-print" onclick="document.getElementById('xlsImportFile').click()">📥 ייבא Excel</button>
+          <input type="file" id="xlsImportFile" accept=".xlsx,.xls,.csv" class="d-none" onchange="importExcel(event)">
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">📁 רשימת פרויקטים</span>
+            <span id="projCountLabel" style="font-size:12px;color:var(--text-muted)"></span>
+          </div>
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>מס׳</th><th>גוש</th><th>חלקה</th><th>שם מזמין</th>
+                  <th>סוג עבודה</th><th>מחיר</th><th>סטטוס</th><th>עובד</th><th>תאריך</th><th>פעולות</th>
+                </tr>
+              </thead>
+              <tbody id="projTbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- EMPLOYEES -->
+      <div id="pg-employees" class="d-none">
+        <div class="tabs">
+          <button class="tab-btn active" id="tab-overview" onclick="switchEmpTab('overview')">👤 סקירה כללית</button>
+          <button class="tab-btn" id="tab-task" onclick="switchEmpTab('task')">✅ רישום משימה</button>
+          <button class="tab-btn" id="tab-timer" onclick="switchEmpTab('timer')">⏱️ שעון חי</button>
+        </div>
+        <div id="tc-overview">
+          <div class="employee-grid" id="empGrid"></div>
+        </div>
+        <div id="tc-task" class="d-none">
+          <div class="card" style="max-width:580px;margin:0 auto">
+            <div class="card-header"><span class="card-title">➕ הוספת משימה</span></div>
+            <div class="card-body form-stack">
+              <div class="form-group mb-4">
+                <label>עובד</label>
+                <select class="form-control" id="tEmp"></select>
+              </div>
+              <div class="form-group mb-4">
+                <label>פרויקט</label>
+                <select class="form-control" id="tProj"><option value="">-- ללא פרויקט ספציפי --</option></select>
+              </div>
+              <div class="form-row mb-4">
+                <div class="form-group">
+                  <label>סוג משימה</label>
+                  <select class="form-control" id="tType"></select>
+                </div>
+                <div class="form-group">
+                  <label>תאריך</label>
+                  <input type="date" class="form-control" id="tDate">
+                </div>
+              </div>
+              <div class="form-row mb-4">
+                <div class="form-group">
+                  <label>שעת התחלה</label>
+                  <input type="time" class="form-control" id="tStart">
+                </div>
+                <div class="form-group">
+                  <label>שעת סיום</label>
+                  <input type="time" class="form-control" id="tEnd">
+                </div>
+              </div>
+              <div class="form-group mb-4">
+                <label>תיאור</label>
+                <textarea class="form-control" id="tDesc" rows="3" placeholder="תאר בקצרה מה בוצע..."></textarea>
+              </div>
+              <button class="btn btn-primary btn-block" onclick="saveTask()">💾 שמור משימה</button>
+            </div>
+          </div>
+        </div>
+        <div id="tc-timer" class="d-none">
+          <div class="card" style="max-width:480px;margin:0 auto">
+            <div class="card-header"><span class="card-title">⏱️ שעון זמן חי</span></div>
+            <div class="card-body form-stack" style="text-align:center">
+              <div class="form-group mb-4">
+                <label>עובד</label>
+                <select class="form-control" id="tmrEmp"></select>
+              </div>
+              <div class="form-group mb-4">
+                <label>פרויקט</label>
+                <select class="form-control" id="tmrProj"><option value="">-- ללא פרויקט ספציפי --</option></select>
+              </div>
+              <div class="form-group mb-4">
+                <label>סוג משימה</label>
+                <select class="form-control" id="tmrType"></select>
+              </div>
+              <div class="timer-display" id="tmrDisplay">00:00:00</div>
+              <div style="display:flex;gap:12px;justify-content:center">
+                <button class="btn btn-success btn-lg" id="btnTmrStart" onclick="timerStart()">▶ התחל</button>
+                <button class="btn btn-danger btn-lg" id="btnTmrStop" onclick="timerStop()" disabled>⏹ סיים ושמור</button>
+              </div>
+              <p id="tmrStatus" style="font-size:12px;color:var(--text-muted);margin-top:12px">השעון מוכן להפעלה</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- REPORTS -->
+      <div id="pg-reports" class="d-none">
+        <div class="card mb-5 no-print">
+          <div class="card-body">
+            <div class="flex-between" style="flex-wrap:wrap;gap:12px">
+              <div style="display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap">
+                <div>
+                  <label style="font-size:12px;color:var(--text-secondary);display:block;margin-bottom:5px">תאריך דוח</label>
+                  <input type="date" class="form-control" id="rptDate" style="width:188px">
+                </div>
+                <button class="btn btn-primary" onclick="genReport()">📊 צור דוח</button>
+              </div>
+              <div id="rptActions" class="d-none" style="display:flex;gap:7px;flex-wrap:wrap">
+                <button class="btn btn-secondary btn-sm" onclick="window.print()">🖨️ הדפסה</button>
+                <button class="btn btn-secondary btn-sm" onclick="exportRptXls()">📥 ייצוא Excel</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div id="rptOutput"></div>
+      </div>
+
+      <!-- SETTINGS -->
+      <div id="pg-settings" class="d-none">
+        <div class="grid-2">
+          <div>
+            <div class="card mb-5">
+              <div class="card-header"><span class="card-title">👥 ניהול עובדים</span></div>
+              <div class="card-body">
+                <div id="empSettingsList"></div>
+                <button class="btn btn-primary btn-sm mt-3" onclick="openAddEmp()">+ הוסף עובד</button>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-header"><span class="card-title">⚙️ הגדרות מערכת</span></div>
+              <div class="card-body">
+                <div class="settings-row">
+                  <div class="settings-label">
+                    <h4>אחוז מע"מ</h4>
+                    <p>שיעור מע"מ נוכחי</p>
+                  </div>
+                  <div style="display:flex;align-items:center;gap:7px">
+                    <input type="number" class="form-control" id="vatInput" style="width:75px" min="0" max="100">
+                    <span style="color:var(--text-secondary)">%</span>
+                    <button class="btn btn-secondary btn-sm" onclick="saveVat()">שמור</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <div class="card mb-5">
+              <div class="card-header"><span class="card-title">📤 ייבוא / ייצוא</span></div>
+              <div class="card-body">
+                <div class="settings-section">
+                  <h3>ייבוא מ-Excel</h3>
+                  <div class="alert alert-info">
+                    <span class="alert-icon">ℹ️</span>
+                    <div class="alert-content">
+                      <div class="alert-title">פורמט נדרש</div>
+                      <div class="alert-text">עמודות: גוש | חלקה | שם מזמין | סוג עבודה | מחיר</div>
+                    </div>
+                  </div>
+                  <input type="file" id="xlsImportFile2" accept=".xlsx,.xls,.csv" class="d-none" onchange="importExcel(event)">
+                  <button class="btn btn-secondary" onclick="document.getElementById('xlsImportFile2').click()">📂 בחר קובץ</button>
+                </div>
+                <div class="settings-section">
+                  <h3>ייצוא נתונים</h3>
+                  <div style="display:flex;gap:7px;flex-wrap:wrap">
+                    <button class="btn btn-secondary btn-sm" onclick="exportProjects()">📥 ייצוא פרויקטים</button>
+                    <button class="btn btn-secondary btn-sm" onclick="exportTasks()">📥 ייצוא משימות</button>
+                    <button class="btn btn-secondary btn-sm" onclick="doBackup()">💾 גיבוי מלא</button>
+                    <input type="file" id="restoreFile" accept=".json" class="d-none" onchange="doRestore(event)">
+                    <button class="btn btn-secondary btn-sm" onclick="document.getElementById('restoreFile').click()">🔄 שחזור</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-header"><span class="card-title">📊 נתוני מסד</span></div>
+              <div class="card-body" id="dbStatsBox"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+</div>
+
+<!-- ==================== MODALS ==================== -->
+
+<!-- Modal: Project -->
+<div class="modal-overlay" id="mProject">
+<div class="modal modal-lg">
+  <div class="modal-header">
+    <h3 id="mProjTitle">➕ פרויקט חדש</h3>
+    <button class="modal-close" onclick="closeM('mProject')">✕</button>
+  </div>
+  <div class="modal-body">
+    <input type="hidden" id="mProjId">
+    <input type="hidden" id="mProjParentId">
+    <!-- Duplicate Alert -->
+    <div class="dup-alert" id="dupAlert">
+      <h4 id="dupAlertTitle">⚠️ נמצאה עבודה קיימת</h4>
+      <div class="dup-info" id="dupInfo"></div>
+      <div class="dup-actions">
+        <button class="btn btn-warning btn-sm" onclick="dupContinue()">המשך בכל זאת</button>
+        <button class="btn btn-secondary btn-sm" onclick="dupAsChild()">רשום כפרויקט נגזר</button>
+        <button class="btn btn-danger btn-sm" onclick="closeM('mProject')">בטל</button>
+      </div>
+    </div>
+    <!-- Fields -->
+    <div class="form-row-3 mb-4">
+      <div class="form-group">
+        <label>גוש <span style="color:var(--danger)">*</span></label>
+        <input type="number" class="form-control" id="mBlock" placeholder="מספר גוש" oninput="checkDup()">
+      </div>
+      <div class="form-group">
+        <label>חלקה <span style="color:var(--danger)">*</span></label>
+        <input type="number" class="form-control" id="mParcel" placeholder="מספר חלקה" oninput="checkDup()">
+      </div>
+      <div class="form-group">
+        <label>תת-חלקה</label>
+        <input type="number" class="form-control" id="mSub" placeholder="אופציונלי">
+      </div>
+    </div>
+    <div class="form-row mb-4">
+      <div class="form-group">
+        <label>שם מזמין <span style="color:var(--danger)">*</span></label>
+        <input type="text" class="form-control" id="mClient" placeholder="שם מלא">
+      </div>
+      <div class="form-group">
+        <label>טלפון</label>
+        <input type="text" class="form-control" id="mPhone" placeholder="050-0000000">
+      </div>
+    </div>
+    <div class="form-row mb-4">
+      <div class="form-group">
+        <label>סוג עבודה <span style="color:var(--danger)">*</span></label>
+        <select class="form-control" id="mWorkType" onchange="checkDup()">
+          <option value="">-- בחר --</option>
+          <option>רישוי</option>
+          <option>פיצול חלקה</option>
+          <option>איחוד חלקות</option>
+          <option>תשריט בית משותף</option>
+          <option>מדידת גבולות</option>
+          <option>מדידה טופוגרפית</option>
+          <option>חישוב שטחים</option>
+          <option>עסקת מקרקעין</option>
+          <option>תעודת גמר</option>
+          <option>בדיקת גבולות</option>
+          <option>אחר</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>סטטוס</label>
+        <select class="form-control" id="mStatus">
+          <option>חדש</option><option>בתהליך</option><option>בשטח</option><option>הושלם</option><option>ארכיון</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row mb-4">
+      <div class="form-group">
+        <label>מחיר ללא מע"מ (₪) <span style="color:var(--danger)">*</span></label>
+        <input type="number" class="form-control" id="mPrice" placeholder="0" oninput="calcVat()">
+      </div>
+      <div class="form-group">
+        <label>מחיר כולל מע"מ (₪)</label>
+        <input type="text" class="form-control" id="mPriceVat" placeholder="אוטומטי" readonly style="opacity:.7">
+      </div>
+    </div>
+    <div class="form-row mb-4">
+      <div class="form-group">
+        <label>עובד אחראי</label>
+        <select class="form-control" id="mAssigned"></select>
+      </div>
+      <div class="form-group">
+        <label>תאריך יעד</label>
+        <input type="date" class="form-control" id="mDue">
+      </div>
+    </div>
+    <div class="form-group">
+      <label>הערות</label>
+      <textarea class="form-control" id="mNotes" rows="3" placeholder="הערות נוספות..."></textarea>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-secondary" onclick="closeM('mProject')">ביטול</button>
+    <button class="btn btn-primary" onclick="saveProj()">💾 שמור פרויקט</button>
+  </div>
+</div>
+</div>
+
+<!-- Modal: Project Details -->
+<div class="modal-overlay" id="mDetails">
+<div class="modal modal-lg">
+  <div class="modal-header">
+    <h3 id="mDetailsTitle">פרטי פרויקט</h3>
+    <button class="modal-close" onclick="closeM('mDetails')">✕</button>
+  </div>
+  <div class="modal-body" id="mDetailsBody"></div>
+  <div class="modal-footer" id="mDetailsFooter"></div>
+</div>
+</div>
+
+<!-- Modal: Employee -->
+<div class="modal-overlay" id="mEmp">
+<div class="modal">
+  <div class="modal-header">
+    <h3 id="mEmpTitle">👤 עובד חדש</h3>
+    <button class="modal-close" onclick="closeM('mEmp')">✕</button>
+  </div>
+  <div class="modal-body form-stack">
+    <input type="hidden" id="mEmpId">
+    <div class="form-group mb-4">
+      <label>שם מלא <span style="color:var(--danger)">*</span></label>
+      <input type="text" class="form-control" id="eNameInput" placeholder="שם ושם משפחה">
+    </div>
+    <div class="form-row mb-4">
+      <div class="form-group">
+        <label>תפקיד</label>
+        <select class="form-control" id="eRoleInput">
+          <option value="משרדי">משרדי</option>
+          <option value="שטח">שטח</option>
+          <option value="מנהל">מנהל</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>צבע זיהוי</label>
+        <input type="color" class="form-control" id="eColorInput" value="#3b82f6" style="height:42px;padding:4px 8px">
+      </div>
+    </div>
+    <div class="form-row mb-4">
+      <div class="form-group">
+        <label>שם משתמש <span style="color:var(--danger)">*</span></label>
+        <input type="text" class="form-control" id="eUserInput" placeholder="לכניסה למערכת">
+      </div>
+      <div class="form-group">
+        <label>סיסמה</label>
+        <input type="password" class="form-control" id="ePassInput" placeholder="השאר ריק לשמור">
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-secondary" onclick="closeM('mEmp')">ביטול</button>
+    <button class="btn btn-primary" onclick="saveEmp()">💾 שמור</button>
+  </div>
+</div>
+</div>
+
+<!-- TOAST -->
+<div id="toastBox"></div>
+
+<!-- ==================== JAVASCRIPT ==================== -->
+<script>
+// ─────────────────────────────────────────────
+// DB
+// ─────────────────────────────────────────────
+const DB={
+  get(k,d=[]){try{const v=localStorage.getItem('sv_'+k);return v!=null?JSON.parse(v):d}catch{return d}},
+  set(k,v){localStorage.setItem('sv_'+k,JSON.stringify(v))},
+  id(p){return p+'-'+Date.now()+'-'+Math.random().toString(36).substr(2,4)}
+};
+
+// ─────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────
+function initDB(){
+  if(DB.get('_init',false))return;
+  DB.set('employees',[
+    {id:'EMP-admin',name:'מנהל המשרד',role:'מנהל',username:'admin',password:'admin123',color:'#3b82f6',active:true},
+    {id:'EMP-001',name:'דוד לוי',role:'משרדי',username:'emp1',password:'emp1',color:'#10b981',active:true},
+    {id:'EMP-002',name:'שרה מזרחי',role:'משרדי',username:'emp2',password:'emp2',color:'#f59e0b',active:true},
+    {id:'EMP-003',name:'יוסי בן-דוד',role:'שטח',username:'field1',password:'field1',color:'#8b5cf6',active:true}
+  ]);
+  DB.set('projects',[
+    {id:'PRJ-001',block:1234,parcel:56,sub:null,client:'ישראל ישראלי',phone:'050-1234567',wtype:'מדידת גבולות',price:3500,priceVat:4095,status:'בתהליך',emp:'EMP-001',created:td(),due:'',notes:'גישה מצד הדרום',parent:null},
+    {id:'PRJ-002',block:200,parcel:8,sub:null,client:'דוד פרץ',phone:'052-9876543',wtype:'תשריט בית משותף',price:8000,priceVat:9360,status:'חדש',emp:'EMP-002',created:td(),due:'',notes:'',parent:null},
+    {id:'PRJ-003',block:560,parcel:12,sub:null,client:'מרים כהן',phone:'054-1122334',wtype:'פיצול חלקה',price:5500,priceVat:6435,status:'הושלם',emp:'EMP-001',created:td(),due:'',notes:'',parent:null}
+  ]);
+  DB.set('tasks',[]);
+  DB.set('vat',17);
+  DB.set('_init',true);
+}
+function td(){return new Date().toISOString().split('T')[0]}
+
+// ─────────────────────────────────────────────
+// AUTH
+// ─────────────────────────────────────────────
+let CU=null; // current user
+
+function doLogin(){
+  const u=v('loginUser').trim();
+  const p=v('loginPass').trim();
+  const found=DB.get('employees').find(e=>e.username===u&&e.password===p&&e.active);
+  if(!found){showLoginErr('שם משתמש או סיסמה שגויים');return}
+  CU=found;
+  ge('loginAlert').classList.add('d-none');
+  ge('loginPage').style.display='none';
+  ge('app').style.display='block';
+  setupSidebar();
+  goTo('dashboard');
+  toast('ברוך הבא, '+CU.name+' 👋','success');
+}
+function showLoginErr(msg){
+  ge('loginAlert').classList.remove('d-none');
+  ge('loginAlertText').textContent=msg;
+}
+function doLogout(){
+  CU=null;
+  ge('app').style.display='none';
+  ge('loginPage').style.display='flex';
+  ge('loginPass').value='';
+  ge('loginAlert').classList.add('d-none');
+}
+function setupSidebar(){
+  ge('sideName').textContent=CU.name;
+  ge('sideRole').textContent=CU.role==='מנהל'?'מנהל מערכת':CU.role==='משרדי'?'עובד משרדי':'עובד שטח';
+  const av=ge('sideAvatar');
+  av.textContent=CU.name[0];
+  av.style.background=CU.color;
+  if(CU.role==='שטח')ge('btnNewProject').classList.add('d-none');
+  else ge('btnNewProject').classList.remove('d-none');
+}
+
+// ─────────────────────────────────────────────
+// NAVIGATION
+// ─────────────────────────────────────────────
+const PAGES=['dashboard','projects','employees','reports','settings'];
+const TITLES={
+  dashboard:['לוח בקרה','סקירה כללית של המשרד'],
+  projects:['ניהול פרויקטים','רשימת כל הפרויקטים'],
+  employees:['עובדים ומשימות','מעקב זמן ופעילות'],
+  reports:['דוחות','דוחות פעילות יומיים וחודשיים'],
+  settings:['הגדרות','הגדרות מערכת וניהול משתמשים']
+};
+let curPage='dashboard';
+
+function goTo(pg){
+  PAGES.forEach(p=>{
+    ge('pg-'+p).classList.add('d-none');
+    ge('nav-'+p).classList.remove('active');
+  });
+  ge('pg-'+pg).classList.remove('d-none');
+  ge('nav-'+pg).classList.add('active');
+  curPage=pg;
+  const[t,s]=TITLES[pg];
+  ge('pageTitle').textContent=t;
+  ge('pageSub').textContent=s;
+  if(pg==='dashboard')renderDash();
+  if(pg==='projects')renderProjects();
+  if(pg==='employees')renderEmployees();
+  if(pg==='reports')initReport();
+  if(pg==='settings')renderSettings();
+}
+
+// ─────────────────────────────────────────────
+// DASHBOARD
+// ─────────────────────────────────────────────
+function renderDash(){
+  const projs=DB.get('projects');
+  const tasks=DB.get('tasks');
+  const emps=DB.get('employees');
+  const active=projs.filter(p=>['חדש','בתהליך','בשטח'].includes(p.status));
+  const done=projs.filter(p=>p.status==='הושלם');
+  const todayTasks=tasks.filter(t=>t.date===td());
+  const revenue=done.reduce((s,p)=>s+(parseFloat(p.price)||0),0);
+  // badge
+  const badge=ge('activeBadge');
+  if(active.length){badge.classList.remove('d-none');badge.textContent=active.length}else badge.classList.add('d-none');
+  // stats
+  ge('statsGrid').innerHTML=`
+    <div class="stat-card blue"><span class="stat-icon">📁</span><div class="stat-value">${active.length}</div><div class="stat-label">פרויקטים פעילים</div></div>
+    <div class="stat-card green"><span class="stat-icon">✅</span><div class="stat-value">${done.length}</div><div class="stat-label">פרויקטים שהושלמו</div></div>
+    <div class="stat-card yellow"><span class="stat-icon">⏱️</span><div class="stat-value">${todayTasks.length}</div><div class="stat-label">משימות היום</div></div>
+    <div class="stat-card cyan"><span class="stat-icon">💰</span><div class="stat-value">₪${revenue.toLocaleString()}</div><div class="stat-label">הכנסות סה"כ (ללא מע"מ)</div></div>
+    <div class="stat-card red"><span class="stat-icon">👥</span><div class="stat-value">${emps.filter(e=>e.active).length}</div><div class="stat-label">עובדים פעילים</div></div>
+  `;
+  // recent
+  const recent=[...projs].reverse().slice(0,6);
+  ge('recentProjs').innerHTML=recent.length?recent.map(p=>`
+    <div onclick="showDetails('${p.id}')" style="cursor:pointer;padding:11px;border-radius:8px;border:1px solid var(--border);margin-bottom:8px;background:var(--bg-secondary);transition:all .2s" onmouseover="this.style.borderColor='var(--border-light)'" onmouseout="this.style.borderColor='var(--border)'">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <span style="font-weight:700;font-size:13px">גוש ${p.block} / חלקה ${p.parcel}</span>${sBadge(p.status)}
+      </div>
+      <div style="font-size:11px;color:var(--text-muted);margin-top:3px">${p.client} · ${p.wtype}</div>
+    </div>`).join(''):`<div class="empty-state"><span class="ei">📁</span><h3>אין פרויקטים</h3><p>הוסף את הפרויקט הראשון</p></div>`;
+  // today
+  ge('todayDateLabel').textContent=new Date().toLocaleDateString('he-IL',{weekday:'long',month:'long',day:'numeric'});
+  ge('todayAct').innerHTML=todayTasks.length?todayTasks.slice(0,8).map(t=>{
+    const emp=emps.find(e=>e.id===t.emp);
+    const proj=projs.find(p=>p.id===t.proj);
+    return`<div class="activity-item"><div class="a-dot" style="background:${emp?.color||'#3b82f6'}"></div><div><div class="a-text"><strong>${emp?.name||'?'}</strong> — ${t.ttype}${proj?' | גוש '+proj.block+' חלקה '+proj.parcel:''}</div><div class="a-time">${t.start||''}${t.end?' - '+t.end:''} (${fmtMin(t.mins)})</div></div></div>`;
+  }).join(''):`<div class="empty-state"><span class="ei">☀️</span><h3>אין פעילות היום</h3><p>לא נרשמו משימות</p></div>`;
+}
+
+// ─────────────────────────────────────────────
+// PROJECTS
+// ─────────────────────────────────────────────
+function renderProjects(){
+  const projs=DB.get('projects');
+  const types=[...new Set(projs.map(p=>p.wtype))];
+  const tf=ge('filtType');
+  tf.innerHTML='<option value="">כל סוגי העבודה</option>'+types.map(t=>`<option>${t}</option>`).join('');
+  displayProjs(projs);
+}
+function filterProjs(){
+  const q=ge('projSearch').value.toLowerCase();
+  const st=ge('filtStatus').value;
+  const wt=ge('filtType').value;
+  let p=DB.get('projects');
+  if(q)p=p.filter(x=>String(x.block).includes(q)||String(x.parcel).includes(q)||x.client.toLowerCase().includes(q)||x.wtype.toLowerCase().includes(q));
+  if(st)p=p.filter(x=>x.status===st);
+  if(wt)p=p.filter(x=>x.wtype===wt);
+  displayProjs(p);
+}
+function displayProjs(projs){
+  const emps=DB.get('employees');
+  ge('projCountLabel').textContent=projs.length+' פרויקטים';
+  const tb=ge('projTbody');
+  if(!projs.length){tb.innerHTML=`<tr><td colspan="10"><div class="empty-state"><span class="ei">📁</span><h3>אין פרויקטים</h3><p>הוסף פרויקט חדש</p></div></td></tr>`;return}
+  const canEdit=CU.role==='מנהל'||CU.role==='משרדי';
+  tb.innerHTML=projs.map(p=>{
+    const emp=emps.find(e=>e.id===p.emp);
+    return`<tr>
+      <td style="font-size:11px;color:var(--text-muted)">${p.id}</td>
+      <td style="font-weight:700">${p.block}</td>
+      <td style="font-weight:700">${p.parcel}${p.sub?'/'+p.sub:''}</td>
+      <td>${p.client}<br><span style="font-size:10px;color:var(--text-muted)">${p.phone||''}</span></td>
+      <td><span class="badge badge-blue">${p.wtype}</span>${p.parent?'<br><span style="font-size:10px;color:var(--text-muted)">↳ נגזר</span>':''}</td>
+      <td>₪${(parseFloat(p.price)||0).toLocaleString()}<br><span style="font-size:10px;color:var(--text-muted)">+מע"מ: ₪${(parseFloat(p.priceVat)||0).toLocaleString()}</span></td>
+      <td>${sBadge(p.status)}</td>
+      <td>${emp?`<span style="display:inline-flex;align-items:center;gap:5px"><span style="width:7px;height:7px;border-radius:50%;background:${emp.color};display:inline-block"></span>${emp.name}</span>`:'-'}</td>
+      <td style="font-size:11px;color:var(--text-muted)">${p.created}</td>
+      <td><div class="action-btns">
+        <button class="btn btn-secondary btn-sm" onclick="showDetails('${p.id}')">👁️</button>
+        ${canEdit?`<button class="btn btn-secondary btn-sm" onclick="openEditProj('${p.id}')">✏️</button>`:''}
+        ${CU.role==='מנהל'?`<button class="btn btn-danger btn-sm" onclick="delProj('${p.id}')">🗑️</button>`:''}
+      </div></td>
+    </tr>`;
+  }).join('');
+}
+
+function sBadge(s){
+  const m={חדש:'badge-blue',בתהליך:'badge-yellow',בשטח:'badge-purple',הושלם:'badge-green',ארכיון:'badge-gray'};
+  const i={חדש:'🆕',בתהליך:'🔄',בשטח:'🏗️',הושלם:'✅',ארכיון:'🗄️'};
+  return`<span class="badge ${m[s]||'badge-gray'}">${i[s]||''} ${s}</span>`;
+}
+
+// DUPLICATE CHECK
+let _dupFound=null;
+function checkDup(){
+  const bl=v('mBlock');const pr=v('mParcel');const wt=v('mWorkType');
+  const editId=v('mProjId');
+  const da=ge('dupAlert');
+  _dupFound=null;
+  da.classList.remove('show','danger-dup');
+  if(!bl||!pr){return}
+  const matches=DB.get('projects').filter(p=>String(p.block)===bl&&String(p.parcel)===pr&&p.id!==editId);
+  if(!matches.length)return;
+  _dupFound=matches[0];
+  const exactDup=wt&&matches.some(p=>p.wtype===wt);
+  da.classList.add('show');
+  if(exactDup)da.classList.add('danger-dup');
+  ge('dupAlertTitle').textContent=exactDup?'⛔ אותו גוש, חלקה וסוג עבודה קיים!':'⚠️ נמצאו פרויקטים לגוש/חלקה זו';
+  ge('dupInfo').innerHTML=matches.map(p=>`<strong>גוש ${p.block} חלקה ${p.parcel}</strong> | ${p.wtype} | ${p.client} | <strong>${p.status}</strong> | ${p.id}`).join('<br>');
+}
+function dupContinue(){ge('dupAlert').classList.remove('show');_dupFound=null}
+function dupAsChild(){
+  if(_dupFound){ge('mProjParentId').value=_dupFound.id;ge('dupAlert').classList.remove('show');toast('יירשם כנגזר מ-'+_dupFound.id,'info')}
+}
+function calcVat(){
+  const p=parseFloat(v('mPrice'))||0;
+  const vr=DB.get('vat',17);
+  ge('mPriceVat').value='₪'+(p*(1+vr/100)).toFixed(2);
+}
+
+function openNewProj(){
+  clearProjModal();
+  ge('mProjTitle').textContent='➕ פרויקט חדש';
+  fillAssigned('mAssigned','');
+  openM('mProject');
+}
+function openEditProj(id){
+  const p=DB.get('projects').find(x=>x.id===id);
+  if(!p)return;
+  clearProjModal(p);
+  ge('mProjTitle').textContent='✏️ עריכת פרויקט';
+  fillAssigned('mAssigned',p.emp);
+  calcVat();
+  openM('mProject');
+}
+function clearProjModal(p){
+  ge('mProjId').value=p?p.id:'';
+  ge('mProjParentId').value=p?p.parent||'':'';
+  ge('mBlock').value=p?p.block:'';
+  ge('mParcel').value=p?p.parcel:'';
+  ge('mSub').value=p?p.sub||'':'';
+  ge('mClient').value=p?p.client:'';
+  ge('mPhone').value=p?p.phone||'':'';
+  ge('mWorkType').value=p?p.wtype:'';
+  ge('mStatus').value=p?p.status:'חדש';
+  ge('mPrice').value=p?p.price:'';
+  ge('mPriceVat').value=p?'₪'+p.priceVat:'';
+  ge('mDue').value=p?p.due||'':'';
+  ge('mNotes').value=p?p.notes||'':'';
+  ge('dupAlert').classList.remove('show','danger-dup');
+  _dupFound=null;
+}
+function fillAssigned(selId,selected){
+  const emps=DB.get('employees').filter(e=>e.active);
+  ge(selId).innerHTML=emps.map(e=>`<option value="${e.id}"${e.id===selected?' selected':''}>${e.name} (${e.role})</option>`).join('');
+}
+
+function saveProj(){
+  const bl=parseInt(v('mBlock'));const pr=parseInt(v('mParcel'));
+  const cl=v('mClient').trim();const wt=v('mWorkType');
+  const price=parseFloat(v('mPrice'))||0;
+  if(!bl||!pr||!cl||!wt){toast('נא למלא גוש, חלקה, שם מזמין וסוג עבודה','error');return}
+  const vr=DB.get('vat',17);
+  const editId=v('mProjId');
+  const projs=DB.get('projects');
+  const obj={
+    id:editId||DB.id('PRJ'),
+    block:bl,parcel:pr,sub:parseInt(v('mSub'))||null,
+    client:cl,phone:v('mPhone'),wtype:wt,
+    price,priceVat:parseFloat((price*(1+vr/100)).toFixed(2)),
+    status:v('mStatus'),emp:ge('mAssigned').value,
+    created:editId?(projs.find(p=>p.id===editId)?.created||td()):td(),
+    due:v('mDue'),notes:v('mNotes'),
+    parent:v('mProjParentId')||null
+  };
+  if(editId){const i=projs.findIndex(p=>p.id===editId);projs[i]=obj}
+  else projs.push(obj);
+  DB.set('projects',projs);
+  closeM('mProject');
+  toast(editId?'פרויקט עודכן ✅':'פרויקט נוסף ✅','success');
+  if(curPage==='projects')renderProjects();
+  if(curPage==='dashboard')renderDash();
+}
+
+function delProj(id){
+  if(!confirm('האם למחוק פרויקט זה? לא ניתן לשחזר.'))return;
+  DB.set('projects',DB.get('projects').filter(p=>p.id!==id));
+  toast('פרויקט נמחק','success');
+  renderProjects();
+}
+
+function showDetails(id){
+  const p=DB.get('projects').find(x=>x.id===id);
+  if(!p)return;
+  const emps=DB.get('employees');
+  const tasks=DB.get('tasks').filter(t=>t.proj===id);
+  const emp=emps.find(e=>e.id===p.emp);
+  const children=DB.get('projects').filter(x=>x.parent===id);
+  let h=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:18px">
+    <div><div style="color:var(--text-muted);font-size:11px">גוש / חלקה</div><div style="font-size:26px;font-weight:900;color:var(--accent-light)">${p.block} / ${p.parcel}${p.sub?'/'+p.sub:''}</div></div>
+    <div>${sBadge(p.status)}</div>
+    <div><div style="color:var(--text-muted);font-size:11px">שם מזמין</div><div style="font-weight:600">${p.client}</div><div style="font-size:11px;color:var(--text-muted)">${p.phone||''}</div></div>
+    <div><div style="color:var(--text-muted);font-size:11px">סוג עבודה</div><div style="font-weight:600">${p.wtype}</div></div>
+    <div><div style="color:var(--text-muted);font-size:11px">מחיר ללא מע"מ</div><div style="font-weight:700;color:var(--success);font-size:18px">₪${(parseFloat(p.price)||0).toLocaleString()}</div></div>
+    <div><div style="color:var(--text-muted);font-size:11px">מחיר כולל מע"מ</div><div style="font-weight:700;font-size:18px">₪${(parseFloat(p.priceVat)||0).toLocaleString()}</div></div>
+    <div><div style="color:var(--text-muted);font-size:11px">עובד אחראי</div><div style="font-weight:600">${emp?emp.name:'-'}</div></div>
+    <div><div style="color:var(--text-muted);font-size:11px">תאריך פתיחה</div><div>${p.created}</div></div>
+    ${p.due?`<div><div style="color:var(--text-muted);font-size:11px">תאריך יעד</div><div>${p.due}</div></div>`:''}
+    ${p.notes?`<div style="grid-column:1/-1"><div style="color:var(--text-muted);font-size:11px">הערות</div><div style="color:var(--text-secondary);font-size:13px">${p.notes}</div></div>`:''}
+    ${p.parent?`<div style="grid-column:1/-1"><span class="badge badge-yellow">🔗 פרויקט נגזר מ-${p.parent}</span></div>`:''}
+  </div>`;
+  if(children.length)h+=`<div style="margin-bottom:14px"><strong style="font-size:13px">פרויקטים נגזרים:</strong><br>${children.map(c=>`<span class="badge badge-cyan" style="margin:3px">${c.id} | ${c.wtype} | ${sBadge(c.status)}</span>`).join('')}</div>`;
+  if(tasks.length){
+    h+=`<div style="font-weight:700;font-size:13px;margin-bottom:8px">📋 משימות (${tasks.length})</div>
+    <div class="table-wrapper"><table><thead><tr><th>עובד</th><th>סוג</th><th>תיאור</th><th>תאריך</th><th>שעות</th><th>משך</th></tr></thead><tbody>
+    ${tasks.map(t=>{const te=emps.find(e=>e.id===t.emp);return`<tr><td>${te?.name||'-'}</td><td>${t.ttype}</td><td style="font-size:11px;max-width:140px">${t.desc||'-'}</td><td>${t.date}</td><td style="font-size:11px">${t.start||'-'} - ${t.end||'-'}</td><td><strong>${fmtMin(t.mins)}</strong></td></tr>`}).join('')}
+    </tbody></table></div>`;
+  } else {
+    h+=`<p style="font-size:13px;color:var(--text-muted)">אין משימות רשומות לפרויקט זה</p>`;
+  }
+  ge('mDetailsTitle').textContent=`${p.id} | גוש ${p.block} חלקה ${p.parcel}`;
+  ge('mDetailsBody').innerHTML=h;
+  ge('mDetailsFooter').innerHTML=`<button class="btn btn-secondary" onclick="closeM('mDetails')">סגור</button>${CU.role!=='שטח'?`<button class="btn btn-primary" onclick="closeM('mDetails');openEditProj('${p.id}')">✏️ עריכה</button>`:''}`;
+  openM('mDetails');
+}
+
+// ─────────────────────────────────────────────
+// EMPLOYEES
+// ─────────────────────────────────────────────
+function renderEmployees(){
+  const emps=DB.get('employees').filter(e=>e.active);
+  const tasks=DB.get('tasks');
+  const projs=DB.get('projects');
+  const today=td();
+  // overview grid
+  ge('empGrid').innerHTML=emps.map(emp=>{
+    const et=tasks.filter(t=>t.emp===emp.id&&t.date===today);
+    const totMin=et.reduce((s,t)=>s+(t.mins||0),0);
+    return`<div class="employee-card">
+      <div class="employee-card-header">
+        <div class="emp-avatar-lg" style="background:${emp.color}">${emp.name[0]}</div>
+        <div class="emp-info"><h3>${emp.name}</h3><p>${emp.role}</p></div>
+        <div style="margin-right:auto;text-align:left">
+          <div style="font-size:20px;font-weight:800;color:var(--accent-light)">${fmtMin(totMin)}</div>
+          <div style="font-size:11px;color:var(--text-muted)">${et.length} משימות היום</div>
+        </div>
+      </div>
+      <div class="employee-card-body">
+        ${et.length?`<ul class="task-list">${et.map(t=>{
+          const pr=projs.find(p=>p.id===t.proj);
+          return`<li class="task-item" style="border-right-color:${emp.color}">
+            <div class="th"><span class="tn">${t.ttype}</span><span class="tt">${fmtMin(t.mins)}</span></div>
+            ${pr?`<div class="tp">גוש ${pr.block} חלקה ${pr.parcel} · ${pr.client}</div>`:''}
+            ${t.desc?`<div class="td">${t.desc}</div>`:''}
+            <div style="font-size:10px;color:var(--text-muted);margin-top:2px">${t.start||''}${t.end?' - '+t.end:''}</div>
+          </li>`;
+        }).join('')}</ul>`:`<p style="color:var(--text-muted);font-size:12px;text-align:center;padding:10px">אין משימות היום</p>`}
+        <button class="btn btn-secondary btn-sm btn-block mt-3" onclick="quickTask('${emp.id}')">+ הוסף משימה</button>
+      </div>
+    </div>`;
+  }).join('');
+  // populate selects
+  ge('tEmp').innerHTML=emps.map(e=>`<option value="${e.id}">${e.name}</option>`).join('');
+  ge('tmrEmp').innerHTML=emps.map(e=>`<option value="${e.id}">${e.name}</option>`).join('');
+  const activeProjs=projs.filter(p=>!['הושלם','ארכיון'].includes(p.status));
+  const pOpts='<option value="">-- ללא פרויקט ספציפי --</option>'+activeProjs.map(p=>`<option value="${p.id}">גוש ${p.block} חלקה ${p.parcel} | ${p.client} | ${p.wtype}</option>`).join('');
+  ge('tProj').innerHTML=pOpts;
+  ge('tmrProj').innerHTML=pOpts;
+  const allTypes=['עיבוד נתונים','הכנת מסמכים','הגשה לרשם','תיאום עם לקוח','שיחות טלפון','עבודה ב-CAD','הזנת נתונים','מדידה בשטח','סקר ראשוני','בדיקת תשתיות','צילום תיעוד','תיאום בשטח','ייעוץ','אחר'];
+  ge('tType').innerHTML=allTypes.map(t=>`<option>${t}</option>`).join('');
+  ge('tmrType').innerHTML=allTypes.map(t=>`<option>${t}</option>`).join('');
+  ge('tDate').value=td();
+}
+function quickTask(empId){
+  switchEmpTab('task');
+  ge('tEmp').value=empId;
+}
+function switchEmpTab(tab){
+  ['overview','task','timer'].forEach(t=>{
+    ge('tc-'+t).classList.add('d-none');
+    ge('tab-'+t).classList.remove('active');
+  });
+  ge('tc-'+tab).classList.remove('d-none');
+  ge('tab-'+tab).classList.add('active');
+}
+function saveTask(){
+  const empId=ge('tEmp').value;
+  const projId=ge('tProj').value;
+  const ttype=ge('tType').value;
+  const date=v('tDate');
+  const start=v('tStart');const end=v('tEnd');
+  const desc=v('tDesc');
+  if(!empId||!ttype||!date){toast('נא למלא עובד, סוג משימה ותאריך','error');return}
+  let mins=0;
+  if(start&&end){const[sh,sm]=start.split(':').map(Number);const[eh,em]=end.split(':').map(Number);mins=Math.max(0,(eh*60+em)-(sh*60+sm))}
+  const task={id:DB.id('TSK'),proj:projId||null,emp:empId,ttype,desc,date,start,end,mins};
+  const tasks=DB.get('tasks');tasks.push(task);DB.set('tasks',tasks);
+  if(projId){const projs=DB.get('projects');const p=projs.find(x=>x.id===projId);if(p){p.lastTask=task.id;DB.set('projects',projs)}}
+  toast('משימה נשמרה ✅','success');
+  ge('tDesc').value='';ge('tStart').value='';ge('tEnd').value='';ge('tProj').value='';
+  switchEmpTab('overview');
+  renderEmployees();
+}
+
+// ─────────────────────────────────────────────
+// TIMER
+// ─────────────────────────────────────────────
+let _tmrInterval=null, _tmrStart=null;
+function timerStart(){
+  if(!ge('tmrEmp').value){toast('בחר עובד תחילה','error');return}
+  _tmrStart=new Date();
+  ge('btnTmrStart').disabled=true;ge('btnTmrStop').disabled=false;
+  ge('tmrDisplay').classList.add('timer-running');
+  ge('tmrStatus').textContent='⏱️ שעון פועל מאז '+_tmrStart.toLocaleTimeString('he-IL');
+  _tmrInterval=setInterval(()=>{
+    const s=Math.floor((new Date()-_tmrStart)/1000);
+    ge('tmrDisplay').textContent=`${padZ(Math.floor(s/3600))}:${padZ(Math.floor((s%3600)/60))}:${padZ(s%60)}`;
+  },1000);
+}
+function timerStop(){
+  if(!_tmrInterval)return;
+  clearInterval(_tmrInterval);_tmrInterval=null;
+  const endT=new Date();
+  const mins=Math.round((endT-_tmrStart)/60000);
+  ge('btnTmrStart').disabled=false;ge('btnTmrStop').disabled=true;
+  ge('tmrDisplay').classList.remove('timer-running');
+  ge('tmrDisplay').textContent='00:00:00';
+  ge('tmrStatus').textContent='שעון עצר — '+fmtMin(mins)+' נרשמו';
+  const fmt=d=>d.toTimeString().substr(0,5);
+  const task={id:DB.id('TSK'),proj:ge('tmrProj').value||null,emp:ge('tmrEmp').value,ttype:ge('tmrType').value,desc:'נמדד אוטומטי',date:td(),start:fmt(_tmrStart),end:fmt(endT),mins};
+  const tasks=DB.get('tasks');tasks.push(task);DB.set('tasks',tasks);
+  if(task.proj){const projs=DB.get('projects');const p=projs.find(x=>x.id===task.proj);if(p){p.lastTask=task.id;DB.set('projects',projs)}}
+  toast('נשמר! '+fmtMin(mins)+' ✅','success');
+  _tmrStart=null;
+  switchEmpTab('overview');renderEmployees();
+}
+
+// ─────────────────────────────────────────────
+// REPORTS
+// ─────────────────────────────────────────────
+function initReport(){ge('rptDate').value=td()}
+function genReport(){
+  const date=v('rptDate');
+  if(!date){toast('בחר תאריך','error');return}
+  const tasks=DB.get('tasks').filter(t=>t.date===date);
+  const emps=DB.get('employees').filter(e=>e.active);
+  const projs=DB.get('projects');
+  let totMin=0,totTasks=0;
+  const projIds=new Set(tasks.map(t=>t.proj).filter(Boolean));
+  let activeEmps=0;
+  let html='';
+  emps.forEach(emp=>{
+    const et=tasks.filter(t=>t.emp===emp.id);
+    if(!et.length)return;
+    activeEmps++;
+    const eMin=et.reduce((s,t)=>s+(t.mins||0),0);
+    totMin+=eMin;totTasks+=et.length;
+    html+=`<div class="report-emp-section">
+      <div class="report-emp-header">
+        <div class="user-avatar" style="background:${emp.color};width:36px;height:36px;font-size:15px">${emp.name[0]}</div>
+        <div><div class="re-name">${emp.name}</div><div style="font-size:11px;color:var(--text-muted)">${emp.role}</div></div>
+        <div class="re-stats">
+          <div class="re-stat"><span>${et.length}</span> משימות</div>
+          <div class="re-stat"><span>${fmtMin(eMin)}</span> שעות</div>
+        </div>
+      </div>
+      ${et.map(t=>{
+        const pr=projs.find(p=>p.id===t.proj);
+        return`<div class="report-task-row">
+          <div><div class="rtc-label">פרויקט</div><div class="rtc-val">${pr?`גוש ${pr.block} חלקה ${pr.parcel} · ${pr.client}`:'ללא פרויקט'}</div></div>
+          <div><div class="rtc-label">משימה</div><div class="rtc-val">${t.ttype}</div>${t.desc?`<div style="font-size:10px;color:var(--text-muted)">${t.desc}</div>`:''}</div>
+          <div><div class="rtc-label">שעות</div><div class="rtc-val">${t.start||'-'} — ${t.end||'-'}</div></div>
+          <div><div class="rtc-label">משך</div><div class="rtc-val" style="color:var(--accent-light);font-weight:700">${fmtMin(t.mins)}</div></div>
+        </div>`;
+      }).join('')}
+    </div>`;
+  });
+  if(!activeEmps)html=`<div class="empty-state"><span class="ei">📭</span><h3>אין פעילות לתאריך זה</h3><p>לא נרשמו משימות</p></div>`;
+  const headerHtml=`<div class="report-header">
+    <h2>📊 דוח פעילות יומי</h2>
+    <p>${new Date(date+'T12:00:00').toLocaleDateString('he-IL',{weekday:'long',year:'numeric',month:'long',day:'numeric'})}</p>
+    <div class="report-summary">
+      <div class="rs-item"><div class="rv">${totTasks}</div><div class="rl">משימות</div></div>
+      <div class="rs-item"><div class="rv">${fmtMin(totMin)}</div><div class="rl">שעות עבודה</div></div>
+      <div class="rs-item"><div class="rv">${projIds.size}</div><div class="rl">פרויקטים</div></div>
+      <div class="rs-item"><div class="rv">${activeEmps}</div><div class="rl">עובדים פעילים</div></div>
+    </div>
+  </div>`;
+  ge('rptOutput').innerHTML=headerHtml+html;
+  ge('rptActions').classList.remove('d-none');
+  // save
+  const reports=DB.get('reports',[]);
+  const ri='RPT-'+date;
+  const ex=reports.findIndex(r=>r.id===ri);
+  const rpt={id:ri,date,gen:new Date().toTimeString().substr(0,8),totTasks,totMin};
+  if(ex>=0)reports[ex]=rpt;else reports.push(rpt);
+  DB.set('reports',reports);
+}
+function exportRptXls(){
+  const date=v('rptDate');
+  const tasks=DB.get('tasks').filter(t=>t.date===date);
+  const emps=DB.get('employees');const projs=DB.get('projects');
+  const rows=[['עובד','תפקיד','פרויקט','גוש','חלקה','לקוח','סוג משימה','תיאור','שעת התחלה','שעת סיום','משך (דקות)']];
+  tasks.forEach(t=>{
+    const emp=emps.find(e=>e.id===t.emp);
+    const pr=projs.find(p=>p.id===t.proj);
+    rows.push([emp?.name||'-',emp?.role||'-',t.proj||'-',pr?.block||'-',pr?.parcel||'-',pr?.client||'-',t.ttype,t.desc||'-',t.start||'-',t.end||'-',t.mins||0]);
+  });
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(rows),'דוח יומי');
+  XLSX.writeFile(wb,'daily_report_'+date+'.xlsx');
+  toast('הדוח יוצא','success');
+}
+
+// ─────────────────────────────────────────────
+// SETTINGS
+// ─────────────────────────────────────────────
+function renderSettings(){
+  ge('vatInput').value=DB.get('vat',17);
+  const emps=DB.get('employees');
+  ge('empSettingsList').innerHTML=emps.map(e=>`
+    <div style="display:flex;align-items:center;gap:10px;padding:10px;background:var(--bg-secondary);border-radius:8px;margin-bottom:7px;border:1px solid var(--border)">
+      <div class="user-avatar" style="background:${e.color};width:30px;height:30px;font-size:13px">${e.name[0]}</div>
+      <div style="flex:1"><div style="font-size:13px;font-weight:600">${e.name}</div><div style="font-size:10px;color:var(--text-muted)">${e.username} · ${e.role}</div></div>
+      <span class="badge ${e.active?'badge-green':'badge-gray'}">${e.active?'פעיל':'לא פעיל'}</span>
+      <button class="btn btn-secondary btn-sm" onclick="editEmp('${e.id}')">✏️</button>
+      ${e.id!=='EMP-admin'?`<button class="btn btn-sm" style="background:var(--bg-card);border:1px solid var(--border)" onclick="toggleEmp('${e.id}')">${e.active?'🔒':'🔓'}</button>`:''}</div>`).join('');
+  const projs=DB.get('projects');const tasks=DB.get('tasks');
+  ge('dbStatsBox').innerHTML=`<div class="grid-3">
+    <div style="text-align:center;padding:12px;background:var(--bg-secondary);border-radius:8px;border:1px solid var(--border)"><div style="font-size:24px;font-weight:800;color:var(--accent-light)">${projs.length}</div><div style="font-size:11px;color:var(--text-muted)">פרויקטים</div></div>
+    <div style="text-align:center;padding:12px;background:var(--bg-secondary);border-radius:8px;border:1px solid var(--border)"><div style="font-size:24px;font-weight:800;color:var(--success)">${tasks.length}</div><div style="font-size:11px;color:var(--text-muted)">משימות</div></div>
+    <div style="text-align:center;padding:12px;background:var(--bg-secondary);border-radius:8px;border:1px solid var(--border)"><div style="font-size:24px;font-weight:800;color:var(--warning)">${emps.length}</div><div style="font-size:11px;color:var(--text-muted)">עובדים</div></div>
+  </div>`;
+}
+function saveVat(){
+  const v=parseInt(ge('vatInput').value);
+  if(isNaN(v)||v<0||v>100){toast('אחוז לא תקין','error');return}
+  DB.set('vat',v);toast('מע"מ עודכן ל-'+v+'%','success');
+}
+function openAddEmp(){
+  ge('mEmpId').value='';ge('eNameInput').value='';ge('eRoleInput').value='משרדי';
+  ge('eUserInput').value='';ge('ePassInput').value='';ge('eColorInput').value='#3b82f6';
+  ge('mEmpTitle').textContent='👤 עובד חדש';openM('mEmp');
+}
+function editEmp(id){
+  const e=DB.get('employees').find(x=>x.id===id);if(!e)return;
+  ge('mEmpId').value=id;ge('eNameInput').value=e.name;ge('eRoleInput').value=e.role;
+  ge('eUserInput').value=e.username;ge('ePassInput').value='';ge('eColorInput').value=e.color;
+  ge('mEmpTitle').textContent='✏️ עריכת עובד';openM('mEmp');
+}
+function saveEmp(){
+  const name=ge('eNameInput').value.trim();const user=ge('eUserInput').value.trim();
+  const pass=ge('ePassInput').value;const role=ge('eRoleInput').value;const color=ge('eColorInput').value;
+  const editId=v('mEmpId');
+  if(!name||!user){toast('שם ושם משתמש חובה','error');return}
+  const emps=DB.get('employees');
+  if(editId){
+    const i=emps.findIndex(e=>e.id===editId);
+    emps[i]={...emps[i],name,role,username:user,color};
+    if(pass)emps[i].password=pass;
+  } else {
+    emps.push({id:DB.id('EMP'),name,role,username:user,password:pass||'pass123',color,active:true});
+  }
+  DB.set('employees',emps);closeM('mEmp');toast('עובד נשמר ✅','success');renderSettings();
+}
+function toggleEmp(id){
+  const emps=DB.get('employees');const e=emps.find(x=>x.id===id);
+  if(e){e.active=!e.active;DB.set('employees',emps);renderSettings()}
+}
+
+// ─────────────────────────────────────────────
+// EXCEL
+// ─────────────────────────────────────────────
+function importExcel(ev){
+  const file=ev.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try{
+      const wb=XLSX.read(e.target.result,{type:'binary'});
+      const ws=wb.Sheets[wb.SheetNames[0]];
+      const data=XLSX.utils.sheet_to_json(ws,{header:1});
+      const projs=DB.get('projects');
+      const emps=DB.get('employees');
+      const vr=DB.get('vat',17);
+      const defEmp=emps.find(e=>e.role==='משרדי')||emps[0];
+      let added=0;
+      for(let i=1;i<data.length;i++){
+        const row=data[i];if(!row||!row[0]||!row[1])continue;
+        const bl=parseInt(row[0]);const pr=parseInt(row[1]);
+        if(!bl||!pr)continue;
+        const cl=String(row[2]||'לא ידוע');const wt=String(row[3]||'אחר');const price=parseFloat(row[4])||0;
+        if(projs.find(p=>p.block===bl&&p.parcel===pr&&p.wtype===wt))continue;
+        projs.push({id:DB.id('PRJ'),block:bl,parcel:pr,sub:null,client:cl,phone:'',wtype:wt,price,priceVat:parseFloat((price*(1+vr/100)).toFixed(2)),status:'חדש',emp:defEmp?.id||'',created:td(),due:'',notes:'יובא מ-Excel',parent:null});
+        added++;
+      }
+      DB.set('projects',projs);ev.target.value='';
+      toast(`יובאו ${added} פרויקטים ✅`,'success');
+      if(curPage==='projects')renderProjects();
+    }catch(err){toast('שגיאה בקריאת הקובץ','error');console.error(err)}
+  };
+  reader.readAsBinaryString(file);
+}
+function exportProjects(){
+  const projs=DB.get('projects');const emps=DB.get('employees');
+  const rows=[['מזהה','גוש','חלקה','תת-חלקה','לקוח','טלפון','סוג עבודה','מחיר','מחיר+מעמ','סטטוס','עובד','נוצר','יעד','הערות']];
+  projs.forEach(p=>{const emp=emps.find(e=>e.id===p.emp);rows.push([p.id,p.block,p.parcel,p.sub||'',p.client,p.phone||'',p.wtype,p.price,p.priceVat,p.status,emp?.name||'-',p.created,p.due||'',p.notes||''])});
+  const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(rows),'פרויקטים');
+  XLSX.writeFile(wb,'projects.xlsx');toast('יוצא ✅','success');
+}
+function exportTasks(){
+  const tasks=DB.get('tasks');const emps=DB.get('employees');const projs=DB.get('projects');
+  const rows=[['מזהה','עובד','תפקיד','פרויקט','גוש','חלקה','סוג משימה','תיאור','תאריך','התחלה','סיום','דקות']];
+  tasks.forEach(t=>{const emp=emps.find(e=>e.id===t.emp);const pr=projs.find(p=>p.id===t.proj);rows.push([t.id,emp?.name||'-',emp?.role||'-',t.proj||'-',pr?.block||'-',pr?.parcel||'-',t.ttype,t.desc||'-',t.date,t.start||'-',t.end||'-',t.mins||0])});
+  const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(rows),'משימות');
+  XLSX.writeFile(wb,'tasks.xlsx');toast('יוצא ✅','success');
+}
+function doBackup(){
+  const data={v:'1.0',date:new Date().toISOString(),projects:DB.get('projects'),employees:DB.get('employees'),tasks:DB.get('tasks'),reports:DB.get('reports',[]),vat:DB.get('vat',17)};
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='backup_'+td()+'.json';a.click();
+  toast('גיבוי הורד ✅','success');
+}
+function doRestore(ev){
+  const file=ev.target.files[0];if(!file)return;
+  if(!confirm('שחזור יחליף את כל הנתונים הנוכחיים. להמשיך?'))return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try{
+      const d=JSON.parse(e.target.result);
+      if(d.projects)DB.set('projects',d.projects);if(d.employees)DB.set('employees',d.employees);
+      if(d.tasks)DB.set('tasks',d.tasks);if(d.reports)DB.set('reports',d.reports);if(d.vat)DB.set('vat',d.vat);
+      toast('שחזור הושלם ✅','success');ev.target.value='';renderSettings();
+    }catch{toast('קובץ לא תקין','error')}
+  };reader.readAsText(file);
+}
+
+// ─────────────────────────────────────────────
+// MODALS
+// ─────────────────────────────────────────────
+function openM(id){ge(id).classList.add('show')}
+function closeM(id){ge(id).classList.remove('show')}
+document.querySelectorAll('.modal-overlay').forEach(o=>{
+  o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('show')})
+});
+
+// ─────────────────────────────────────────────
+// TOAST
+// ─────────────────────────────────────────────
+function toast(msg,type='info'){
+  const icons={success:'✅',error:'❌',warning:'⚠️',info:'ℹ️'};
+  const el=document.createElement('div');
+  el.className=`toast toast-${type}`;
+  el.innerHTML=`<span>${icons[type]||'ℹ️'}</span><span>${msg}</span>`;
+  ge('toastBox').appendChild(el);
+  setTimeout(()=>el.remove(),4200);
+}
+
+// ─────────────────────────────────────────────
+// UTILS
+// ─────────────────────────────────────────────
+function ge(id){return document.getElementById(id)}
+function v(id){return ge(id).value}
+function padZ(n){return String(n).padStart(2,'0')}
+function fmtMin(m){if(!m||m<=0)return'0:00';return Math.floor(m/60)+':'+padZ(m%60)}
+
+// Clock
+function updateClock(){ge('clockDisplay').textContent=new Date().toLocaleTimeString('he-IL')}
+setInterval(updateClock,1000);updateClock();
+
+// Enter key login
+['loginUser','loginPass'].forEach(id=>{
+  ge(id).addEventListener('keydown',e=>{if(e.key==='Enter')doLogin()});
+});
+
+// ─────────────────────────────────────────────
+// BOOT
+// ─────────────────────────────────────────────
+initDB();
+</script>
+</body>
+</html>
