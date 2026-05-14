@@ -1,9 +1,14 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-import plotly.graph_objects as go
 from pathlib import Path
 import io
+import re
+try:
+    import joblib
+    JOBLIB_OK = True
+except ImportError:
+    JOBLIB_OK = False
 
 st.set_page_config(
     page_title="EDA – משרד מודדים",
@@ -68,6 +73,23 @@ html, body, [class*="css"]  { font-family:'Heebo',sans-serif; direction:rtl; }
 # DATA LOADING
 # ══════════════════════════════════════════════════════════════════════════════
 DEFAULT_CSV = Path(__file__).parent / "2025_cleaned.csv"
+MODEL_PATH  = Path(__file__).parent / "models" / "model.pkl"
+
+
+def _first_number(val: str) -> int:
+    m = re.search(r"\d+", str(val))
+    return int(m.group()) if m else 0
+
+
+def _count_numbers(val: str) -> int:
+    return len(re.findall(r"\d+", str(val)))
+
+
+@st.cache_resource
+def load_model():
+    if not JOBLIB_OK or not MODEL_PATH.exists():
+        return None
+    return joblib.load(MODEL_PATH)
 
 @st.cache_data
 def read_csv_bytes(raw: bytes) -> pd.DataFrame:
@@ -142,12 +164,13 @@ num_cols   = fdf.select_dtypes(include="number").columns.tolist()
 # ══════════════════════════════════════════════════════════════════════════════
 # TABS
 # ══════════════════════════════════════════════════════════════════════════════
-t1, t2, t3, t4, t5 = st.tabs([
+t1, t2, t3, t4, t5, t6 = st.tabs([
     "📊 סקירה כללית",
     "🔍 איכות נתונים",
     "📈 התפלגויות",
     "🥧 ניתוח קטגורי",
     "📊 ניתוח צולב",
+    "🤖 חיזוי AI",
 ])
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -517,6 +540,164 @@ with t5:
 
     with st.expander("🗃 טבלת נתונים מלאה (לאחר סינון)"):
         st.dataframe(fdf.reset_index(drop=True), use_container_width=True, height=420)
+
+# ─────────────────────────────────────────────────────────────────────────────
+# TAB 6 – AI PREDICTION
+# ─────────────────────────────────────────────────────────────────────────────
+with t6:
+    model_data = load_model()
+
+    if model_data is None:
+        st.warning("המודל טרם אומן.", icon="⚠️")
+        st.markdown("""
+**כדי להפעיל את דף החיזוי:**
+
+1. פתח **Terminal** ב-VS Code (`Ctrl+\``)
+2. נווט לתיקיית הפרויקט
+3. הרץ:
+```bash
+pip install scikit-learn joblib
+python train_model.py
+```
+4. רענן את הדשבורד — הטאב יתעורר אוטומטית.
+""")
+    else:
+        # ── inputs ────────────────────────────────────────────────────────────
+        st.markdown('<div class="sec">🔮 הזן פרטי עבודה לחיזוי מיקום</div>',
+                    unsafe_allow_html=True)
+
+        inp1, inp2, inp3 = st.columns(3)
+        with inp1:
+            gush_val = st.number_input(
+                "מספר גוש:", min_value=10000, max_value=25000,
+                value=17000, step=100,
+            )
+        with inp2:
+            year_val = st.radio("שנה:", [2025, 2026], horizontal=True)
+        with inp3:
+            parcels_val = st.slider("מספר חלקות בעבודה:", 1, 6, 1)
+
+        # ── prediction ────────────────────────────────────────────────────────
+        clf      = model_data["clf"]
+        classes  = model_data["classes"]
+        X_inp    = [[gush_val, year_val, parcels_val]]
+        pred     = clf.predict(X_inp)[0]
+        proba    = clf.predict_proba(X_inp)[0]
+        conf     = float(max(proba))
+
+        res_col, chart_col = st.columns([1, 2])
+
+        with res_col:
+            conf_color = "#1e8449" if conf >= 0.6 else "#e67e22" if conf >= 0.35 else "#c0392b"
+            st.markdown(f"""
+<div style="background:linear-gradient(135deg,#0d1f38,#1a4a7a);
+     border-radius:18px; padding:36px 24px; text-align:center; color:#fff; margin-top:8px;">
+  <div style="font-size:.78rem; letter-spacing:1.5px; opacity:.65; margin-bottom:8px;">
+    מיקום חזוי
+  </div>
+  <div style="font-size:2.6rem; font-weight:800; line-height:1.1; margin-bottom:12px;">
+    {pred}
+  </div>
+  <div style="background:rgba(255,255,255,.12); border-radius:30px;
+       display:inline-block; padding:4px 18px; font-size:.88rem;">
+    ביטחון: <strong style="color:{conf_color};">{conf*100:.1f}%</strong>
+  </div>
+</div>
+""", unsafe_allow_html=True)
+
+        with chart_col:
+            top_idx  = proba.argsort()[-10:][::-1]
+            prob_df  = pd.DataFrame({
+                "עיר":         [classes[i] for i in top_idx],
+                "הסתברות (%)": [round(proba[i] * 100, 1) for i in top_idx],
+            })
+            fig_prob = px.bar(
+                prob_df, y="עיר", x="הסתברות (%)",
+                orientation="h",
+                title="הסתברות לכל עיר (Top 10)",
+                color="הסתברות (%)",
+                color_continuous_scale="Blues",
+                text_auto=".1f",
+                template="plotly_white",
+            )
+            fig_prob.update_layout(
+                yaxis=dict(autorange="reversed"),
+                coloraxis_showscale=False,
+                title_font_size=14,
+                margin=dict(t=40),
+            )
+            fig_prob.update_traces(marker_line_color="white", marker_line_width=0.5)
+            st.plotly_chart(fig_prob, use_container_width=True)
+
+        st.divider()
+
+        # ── model metrics ─────────────────────────────────────────────────────
+        st.markdown('<div class="sec">📊 מדדי המודל</div>', unsafe_allow_html=True)
+
+        m1, m2, m3, m4 = st.columns(4)
+        with m1:
+            st.metric("דיוק – Test set",
+                      f"{model_data['accuracy']*100:.1f}%")
+        with m2:
+            st.metric("דיוק – CV (5-fold)",
+                      f"{model_data['cv_mean']*100:.1f}%",
+                      delta=f"±{model_data['cv_std']*100:.1f}%")
+        with m3:
+            st.metric("Train samples", model_data["train_size"])
+        with m4:
+            st.metric("Test samples", model_data["test_size"])
+
+        # ── feature importance ────────────────────────────────────────────────
+        imp_df = pd.DataFrame({
+            "פיצ'ר":  list(model_data["importances"].keys()),
+            "חשיבות": list(model_data["importances"].values()),
+        }).sort_values("חשיבות")
+
+        fi1, fi2 = st.columns([1, 1])
+        with fi1:
+            fig_imp = px.bar(
+                imp_df, x="חשיבות", y="פיצ'ר",
+                orientation="h",
+                title="חשיבות פיצ'רים (Feature Importance)",
+                color="חשיבות",
+                color_continuous_scale="Blues",
+                text_auto=".3f",
+                template="plotly_white",
+            )
+            fig_imp.update_layout(coloraxis_showscale=False, title_font_size=14)
+            st.plotly_chart(fig_imp, use_container_width=True)
+
+        with fi2:
+            dist_df = pd.DataFrame(
+                model_data["class_dist"].items(),
+                columns=["עיר", "ספירה"],
+            ).sort_values("ספירה", ascending=False).head(15)
+            fig_dist = px.bar(
+                dist_df, x="עיר", y="ספירה",
+                title="התפלגות קלאסים בנתוני האימון",
+                color="ספירה",
+                color_continuous_scale="Blues",
+                text_auto=True,
+                template="plotly_white",
+            )
+            fig_dist.update_layout(coloraxis_showscale=False, title_font_size=14)
+            fig_dist.update_xaxes(tickangle=-40)
+            fig_dist.update_traces(marker_line_color="white", marker_line_width=0.5)
+            st.plotly_chart(fig_dist, use_container_width=True)
+
+        with st.expander("ℹ️ מהו המודל?"):
+            st.markdown("""
+**Random Forest Classifier** – יער של 200 עצי החלטה.
+
+| פיצ'ר | תיאור |
+|--------|--------|
+| גוש (ראשי) | מספר הגוש הקדסטרלי הראשון – פרדיקטור גיאוגרפי חזק |
+| שנה | 2025 / 2026 – מזהה טרנד זמן |
+| מספר חלקות | כמות החלקות בעבודה – מחיר מורכבות |
+
+**Target:** עיר / יישוב (Top 15 + "אחר")
+""")
+
 
 # ── Footer ─────────────────────────────────────────────────────────────────────
 st.markdown("""
