@@ -4,6 +4,7 @@ import plotly.express as px
 from pathlib import Path
 import io
 import re
+from datetime import date
 try:
     import joblib
     JOBLIB_OK = True
@@ -89,7 +90,10 @@ def _count_numbers(val: str) -> int:
 def load_model():
     if not JOBLIB_OK or not MODEL_PATH.exists():
         return None
-    return joblib.load(MODEL_PATH)
+    try:
+        return joblib.load(MODEL_PATH)
+    except Exception:
+        return None
 
 @st.cache_data
 def read_csv_bytes(raw: bytes) -> pd.DataFrame:
@@ -148,6 +152,55 @@ st.markdown("""
         ניתוח מקיף של נתוני עבודות המדידה – סטטיסטיקות, התפלגויות,
         ניתוח קטגורי וניתוח צולב אינטראקטיבי
     </div>
+</div>
+""", unsafe_allow_html=True)
+
+# ══════════════════════════════════════════════════════════════════════════════
+# DEADLINE COUNTDOWN — 3M
+# ══════════════════════════════════════════════════════════════════════════════
+_deadline    = date(2026, 5, 28)
+_days_left   = (_deadline - date.today()).days
+_color_days  = "#c0392b" if _days_left <= 7 else "#d68910" if _days_left <= 14 else "#1e8449"
+
+_checklist = [
+    "מודל ML רץ על הנתונים שלכם",
+    "train_test_split תקין",
+    "לפחות מטריקה אחת מודפסת בממשק",
+    "חיזוי אינטראקטיבי ב-Streamlit",
+    "תיעוד ב-README + תכנית עד Demo Day",
+]
+_checks_html = "".join(
+    f'<div style="display:flex;align-items:center;gap:10px;margin:6px 0;">'
+    f'<span style="background:#c8860a;border-radius:50%;width:22px;height:22px;'
+    f'display:flex;align-items:center;justify-content:center;font-size:.75rem;">✓</span>'
+    f'<span style="font-size:.9rem;">{item}</span></div>'
+    for item in _checklist
+)
+
+st.markdown(f"""
+<div style="background:linear-gradient(135deg,#0d1f38 0%,#1a3a6a 100%);
+            border-radius:16px;padding:28px 32px;margin-bottom:18px;
+            display:flex;gap:32px;align-items:center;flex-wrap:wrap;">
+  <div style="min-width:200px;text-align:center;flex:0 0 auto;">
+    <div style="font-size:5rem;font-weight:800;color:{_color_days};line-height:1;">
+      {max(_days_left,0)}
+    </div>
+    <div style="color:#fff;font-size:1.4rem;font-weight:700;margin:4px 0;">ימים</div>
+    <div style="color:#aac4e8;font-size:.8rem;">עד הדדליין</div>
+    <div style="color:#cfe2f7;font-size:.95rem;font-weight:700;margin-top:6px;">
+      {_deadline.strftime("%d/%m/%Y")}
+    </div>
+  </div>
+  <div style="flex:1;min-width:260px;">
+    <div style="color:#fff;font-size:1.15rem;font-weight:800;margin-bottom:4px;">
+      למפגש הבא — 3M
+    </div>
+    <div style="color:#aac4e8;font-size:.8rem;margin-bottom:14px;">
+      {_deadline.strftime("%d/%m/%Y")} · סוף ההרצאה
+    </div>
+    <div style="color:#fff;font-weight:700;margin-bottom:8px;">חובה ב-3M:</div>
+    {_checks_html}
+  </div>
 </div>
 """, unsafe_allow_html=True)
 
@@ -411,7 +464,6 @@ with t3:
 with t4:
     if not cat_cols:
         st.info("אין עמודות קטגוריאליות.")
-        st.stop()
 
     st.markdown('<div class="sec">🥧 גרף עוגה – התפלגות קטגוריה</div>',
                 unsafe_allow_html=True)
@@ -500,19 +552,22 @@ with t5:
         val_col = "ספירה"
     else:
         if not num_cols:
-            st.warning("אין עמודות מספריות לאגרגציה.")
-            st.stop()
-        agg_label = f"{agg_mode} {x_num}"
-        bar_df = (
-            fdf[[x_num, y_cat]].replace("", pd.NA).dropna()
-            .groupby(y_cat, as_index=False)[x_num]
-            .agg(agg_funcs[agg_mode])
-            .rename(columns={x_num: agg_label})
-            .sort_values(agg_label, ascending=False)
-            .head(top_k)
-        )
-        y_label = agg_label
-        val_col = agg_label
+            st.warning("אין עמודות מספריות לאגרגציה — בחר 'ספירה'.")
+            bar_df = pd.DataFrame()
+            y_label = ""
+            val_col = ""
+        else:
+            agg_label = f"{agg_mode} {x_num}"
+            bar_df = (
+                fdf[[x_num, y_cat]].replace("", pd.NA).dropna()
+                .groupby(y_cat, as_index=False)[x_num]
+                .agg(agg_funcs[agg_mode])
+                .rename(columns={x_num: agg_label})
+                .sort_values(agg_label, ascending=False)
+                .head(top_k)
+            )
+            y_label = agg_label
+            val_col = agg_label
 
     if bar_df.empty:
         st.warning("אין נתונים לגרף.")
@@ -545,6 +600,17 @@ with t5:
 # TAB 6 – AI PREDICTION
 # ─────────────────────────────────────────────────────────────────────────────
 with t6:
+    # ── Model Card ────────────────────────────────────────────────────────────
+    st.markdown('<div class="sec">🤖 פרטי המודל</div>', unsafe_allow_html=True)
+    mc1, mc2, mc3 = st.columns(3)
+    with mc1:
+        st.info("**🎯 Target (y)**\n\nמקום – עיר / יישוב\n\n15 הערים הנפוצות + 'אחר'")
+    with mc2:
+        st.info("**📐 Features (X)**\n\n• גוש (מספר ראשי)\n• שנה\n• מספר חלקות")
+    with mc3:
+        st.info("**🔬 סוג משימה**\n\nסיווג – Classification\n\nRandom Forest · 200 עצים")
+
+    st.divider()
     model_data = load_model()
 
     if model_data is None:
@@ -562,20 +628,16 @@ python train_model.py
 4. רענן את הדשבורד — הטאב יתעורר אוטומטית.
 """)
     else:
-        # ── inputs ────────────────────────────────────────────────────────────
-        st.markdown('<div class="sec">🔮 הזן פרטי עבודה לחיזוי מיקום</div>',
+        # ── input ─────────────────────────────────────────────────────────────
+        st.markdown('<div class="sec">🔮 הזן מספר גוש לחיזוי מיקום</div>',
                     unsafe_allow_html=True)
 
-        inp1, inp2, inp3 = st.columns(3)
-        with inp1:
-            gush_val = st.number_input(
-                "מספר גוש:", min_value=10000, max_value=25000,
-                value=17000, step=100,
-            )
-        with inp2:
-            year_val = st.radio("שנה:", [2025, 2026], horizontal=True)
-        with inp3:
-            parcels_val = st.slider("מספר חלקות בעבודה:", 1, 6, 1)
+        gush_val    = st.number_input(
+            "מספר גוש:", min_value=10000, max_value=25000,
+            value=17000, step=100,
+        )
+        year_val    = 2025
+        parcels_val = 1
 
         # ── prediction ────────────────────────────────────────────────────────
         clf      = model_data["clf"]
