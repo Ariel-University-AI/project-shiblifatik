@@ -238,7 +238,7 @@ if flt_late:
     filtered = filtered[filtered.apply(is_overdue, axis=1)]
 if search.strip():
     mask = filtered.apply(
-        lambda r: search.strip().lower() in " ".join(r.astype(str)).lower(), axis=1
+        lambda r: search.strip().lower() in " ".join(r.fillna("").astype(str).tolist()).lower(), axis=1
     )
     filtered = filtered[mask]
 
@@ -322,13 +322,13 @@ with s2:
 overdue_df = pdf[pdf.apply(is_overdue, axis=1)]
 if not overdue_df.empty:
     st.markdown(f"""
-<div style="background:#fdecea;border-right:4px solid #e53935;border-radius:10px;
-            padding:14px 18px;margin:14px 0;">
+<div style="background:#7b1a1a;border-right:4px solid #e53935;border-radius:10px;
+            padding:14px 18px;margin:14px 0;color:#fff;">
   🔴 <strong>{len(overdue_df)} עבודות באיחור</strong> — יעד הסיום עבר ללא סיום:
 </div>""", unsafe_allow_html=True)
 
     def _style_overdue(row):
-        return ["background-color:#fdecea; color:#7b1a1a"] * len(row)
+        return ["background-color:#4a0f0f; color:#ffcccc"] * len(row)
 
     show_cols = ["מס עבודה", "שם לקוח", "מקום", "מטפל", "יעד סיום", "סטטוס"]
     show_cols = [c for c in show_cols if c in overdue_df.columns]

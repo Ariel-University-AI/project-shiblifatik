@@ -4,7 +4,6 @@ import plotly.express as px
 from pathlib import Path
 import io
 import re
-from datetime import date
 try:
     import joblib
     JOBLIB_OK = True
@@ -152,55 +151,6 @@ st.markdown("""
         ניתוח מקיף של נתוני עבודות המדידה – סטטיסטיקות, התפלגויות,
         ניתוח קטגורי וניתוח צולב אינטראקטיבי
     </div>
-</div>
-""", unsafe_allow_html=True)
-
-# ══════════════════════════════════════════════════════════════════════════════
-# DEADLINE COUNTDOWN — 3M
-# ══════════════════════════════════════════════════════════════════════════════
-_deadline    = date(2026, 5, 28)
-_days_left   = (_deadline - date.today()).days
-_color_days  = "#c0392b" if _days_left <= 7 else "#d68910" if _days_left <= 14 else "#1e8449"
-
-_checklist = [
-    "מודל ML רץ על הנתונים שלכם",
-    "train_test_split תקין",
-    "לפחות מטריקה אחת מודפסת בממשק",
-    "חיזוי אינטראקטיבי ב-Streamlit",
-    "תיעוד ב-README + תכנית עד Demo Day",
-]
-_checks_html = "".join(
-    f'<div style="display:flex;align-items:center;gap:10px;margin:6px 0;">'
-    f'<span style="background:#c8860a;border-radius:50%;width:22px;height:22px;'
-    f'display:flex;align-items:center;justify-content:center;font-size:.75rem;">✓</span>'
-    f'<span style="font-size:.9rem;">{item}</span></div>'
-    for item in _checklist
-)
-
-st.markdown(f"""
-<div style="background:linear-gradient(135deg,#0d1f38 0%,#1a3a6a 100%);
-            border-radius:16px;padding:28px 32px;margin-bottom:18px;
-            display:flex;gap:32px;align-items:center;flex-wrap:wrap;">
-  <div style="min-width:200px;text-align:center;flex:0 0 auto;">
-    <div style="font-size:5rem;font-weight:800;color:{_color_days};line-height:1;">
-      {max(_days_left,0)}
-    </div>
-    <div style="color:#fff;font-size:1.4rem;font-weight:700;margin:4px 0;">ימים</div>
-    <div style="color:#aac4e8;font-size:.8rem;">עד הדדליין</div>
-    <div style="color:#cfe2f7;font-size:.95rem;font-weight:700;margin-top:6px;">
-      {_deadline.strftime("%d/%m/%Y")}
-    </div>
-  </div>
-  <div style="flex:1;min-width:260px;">
-    <div style="color:#fff;font-size:1.15rem;font-weight:800;margin-bottom:4px;">
-      למפגש הבא — 3M
-    </div>
-    <div style="color:#aac4e8;font-size:.8rem;margin-bottom:14px;">
-      {_deadline.strftime("%d/%m/%Y")} · סוף ההרצאה
-    </div>
-    <div style="color:#fff;font-weight:700;margin-bottom:8px;">חובה ב-3M:</div>
-    {_checks_html}
-  </div>
 </div>
 """, unsafe_allow_html=True)
 
