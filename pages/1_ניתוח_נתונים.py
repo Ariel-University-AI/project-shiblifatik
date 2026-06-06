@@ -5,7 +5,7 @@ from pathlib import Path
 import io
 
 st.set_page_config(
-    page_title="EDA – משרד מודדים",
+    page_title="EDA – שיבלי-משרדית",
     layout="wide",
     initial_sidebar_state="expanded",
 )
@@ -57,7 +57,7 @@ st.markdown("""
 # ══════════════════════════════════════════════════════════════════════════════
 # HELPERS
 # ══════════════════════════════════════════════════════════════════════════════
-DEFAULT_CSV = Path(__file__).parent / "2025_cleaned.csv"
+DEFAULT_CSV = Path(__file__).parent.parent / "data" / "2025_cleaned.csv"
 
 @st.cache_data
 def read_default() -> pd.DataFrame:

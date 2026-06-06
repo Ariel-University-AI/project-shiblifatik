@@ -1,7 +1,7 @@
 import streamlit as st
 
 st.set_page_config(
-    page_title="אודות – משרד מודדים",
+    page_title="אודות – שיבלי-משרדית",
     layout="wide",
     initial_sidebar_state="collapsed",
 )
@@ -114,7 +114,7 @@ html, body, [class*="css"] { font-family:'Heebo',sans-serif; direction:rtl; }
 st.markdown("""
 <div class="hero">
     <div class="hero-badge">📐 סמסטר 22 · AI</div>
-    <div class="hero-title">מערכת ניתוח נתונים<br>משרד מודדים</div>
+    <div class="hero-title">מערכת ניתוח נתונים<br>שיבלי-משרדית</div>
     <div class="hero-sub">
         פלטפורמת EDA אינטראקטיבית לניתוח עבודות מדידה,<br>
         ניקוי נתונים אוטומטי וויזואליזציה מתקדמת
@@ -135,7 +135,7 @@ with c1:
         <div class="card-icon">🔍</div>
         <div class="card-title">הבעיה</div>
         <div class="card-body">
-            משרד מודדים מנהל מאות עבודות מדידה בשנה פרוסות על פני
+            שיבלי-משרדית מנהל מאות עבודות מדידה בשנה פרוסות על פני
             יישובים, גושים וחלקות ברחבי הצפון.
             <br><br>
             <b>אתגרים מרכזיים:</b>
@@ -156,7 +156,7 @@ with c2:
         <div class="card-title">מקור הנתונים</div>
         <div class="card-body">
             <b>קובץ גולמי:</b> <code>2025.csv</code><br>
-            רשימת עבודות שנת 2025 של משרד מודדים
+            רשימת עבודות שנת 2025 של שיבלי-משרדית
             <br><br>
             <b>שדות עיקריים:</b>
             <ul>
@@ -300,6 +300,6 @@ st.markdown("""
 <hr style="border-color:#e8edf4; margin:8px 0 20px">
 <div style="text-align:center; color:#999; font-size:.8rem;">
     סמסטר 22 · AI · ניתוח נתונים עם בינה מלאכותית &nbsp;|&nbsp;
-    משרד מודדים 2025
+    שיבלי-משרדית 2025
 </div>
 """, unsafe_allow_html=True)

@@ -5,7 +5,7 @@ import numpy as np
 from pathlib import Path
 
 st.set_page_config(
-    page_title="הסברי גרפים – משרד מודדים",
+    page_title="הסברי גרפים – שיבלי-משרדית",
     page_icon="📖",
     layout="wide",
     initial_sidebar_state="collapsed",
@@ -81,7 +81,7 @@ html, body, [class*="css"] { font-family:'Heebo',sans-serif; direction:rtl; }
 # ══════════════════════════════════════════════════════════════════════════════
 # DATA (for demo charts)
 # ══════════════════════════════════════════════════════════════════════════════
-DEFAULT_CSV = Path(__file__).parent.parent / "2025_cleaned.csv"
+DEFAULT_CSV = Path(__file__).parent.parent / "data" / "2025_cleaned.csv"
 
 @st.cache_data
 def load_data() -> pd.DataFrame | None:
@@ -563,6 +563,6 @@ st.markdown("<br>", unsafe_allow_html=True)
 st.markdown("""
 <hr style="border-color:#e8edf4; margin:8px 0 20px">
 <div style="text-align:center; color:#999; font-size:.8rem;">
-    סמסטר 22 · AI · הסברי גרפים &nbsp;|&nbsp; משרד מודדים 2025
+    סמסטר 22 · AI · הסברי גרפים &nbsp;|&nbsp; שיבלי-משרדית 2025
 </div>
 """, unsafe_allow_html=True)

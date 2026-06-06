@@ -2,11 +2,12 @@ import streamlit as st
 import pandas as pd
 import re
 import os
+import io
 from pathlib import Path
 from datetime import date
 
 st.set_page_config(
-    page_title="ניהול פרויקטים – משרד מודדים",
+    page_title="ניהול פרויקטים – שיבלי-משרדית",
     page_icon="📋",
     layout="wide",
     initial_sidebar_state="collapsed",
@@ -58,7 +59,7 @@ html, body, [class*="css"] { font-family:'Heebo',sans-serif; direction:rtl; }
 # ══════════════════════════════════════════════════════════════════════════════
 # PATHS & CONSTANTS
 # ══════════════════════════════════════════════════════════════════════════════
-SOURCE_CSV        = Path(__file__).parent.parent / "2025_cleaned.csv"
+SOURCE_CSV        = Path(__file__).parent.parent / "data" / "2025_cleaned.csv"
 PROJECTS_CSV      = Path(__file__).parent.parent / "projects.csv"
 MEASUREMENTS_ROOT = Path("D:/מדידות")
 
@@ -310,11 +311,14 @@ with s1:
         st.success("✅ שינויים נשמרו!")
         st.rerun()
 with s2:
+    _buf = io.BytesIO()
+    with pd.ExcelWriter(_buf, engine="openpyxl") as _w:
+        pdf.to_excel(_w, index=False, sheet_name="פרויקטים")
     st.download_button(
-        "⬇️ ייצא CSV",
-        data=pdf.to_csv(index=False, encoding="utf-8-sig").encode("utf-8-sig"),
-        file_name="projects_export.csv",
-        mime="text/csv",
+        "⬇️ ייצא Excel",
+        data=_buf.getvalue(),
+        file_name="projects_export.xlsx",
+        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         use_container_width=True,
     )
 
@@ -447,6 +451,6 @@ if open_clicked:
 st.markdown("""
 <hr style="border-color:#e8edf4; margin:24px 0 14px">
 <div style="text-align:center; color:#aaa; font-size:.8rem;">
-    📋 ניהול פרויקטים · משרד מודדים · שינויים נשמרים ב-projects.csv
+    📋 ניהול פרויקטים · שיבלי-משרדית · שינויים נשמרים ב-projects.csv
 </div>
 """, unsafe_allow_html=True)

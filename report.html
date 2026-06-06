@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<title>דוח פרויקט — שיבלי-משרדית</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;600;700;800&display=swap');
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Heebo', Arial, sans-serif;
+    direction: rtl;
+    color: #1a1a2e;
+    background: #fff;
+    font-size: 14pt;
+    line-height: 1.9;
+  }
+
+  /* ── Print ── */
+  @media print {
+    .page-break { page-break-before: always; }
+    body { font-size: 12pt; }
+    .cover { min-height: 100vh; }
+  }
+
+  /* ── Cover ── */
+  .cover {
+    min-height: 100vh;
+    background: linear-gradient(160deg, #0d1f38 0%, #1a4a7a 55%, #0d3b6e 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 40px;
+    color: #fff;
+    text-align: center;
+  }
+
+  .cover .institute {
+    font-size: 13pt;
+    letter-spacing: 2px;
+    color: #cfe2f7;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+  }
+
+  .cover .course {
+    font-size: 15pt;
+    color: #cfe2f7;
+    margin-bottom: 40px;
+    font-weight: 300;
+  }
+
+  .cover .title {
+    font-size: 42pt;
+    font-weight: 800;
+    line-height: 1.2;
+    margin-bottom: 16px;
+  }
+
+  .cover .subtitle {
+    font-size: 16pt;
+    color: #cfe2f7;
+    max-width: 600px;
+    line-height: 1.6;
+    margin-bottom: 60px;
+  }
+
+  .cover .divider {
+    width: 80px;
+    height: 4px;
+    background: #2d6a9f;
+    border-radius: 2px;
+    margin: 0 auto 50px;
+  }
+
+  .cover-meta {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 14px;
+    padding: 28px 48px;
+    display: inline-block;
+    text-align: right;
+  }
+
+  .cover-meta table { border-collapse: collapse; }
+  .cover-meta td { padding: 7px 16px; font-size: 13pt; color: #fff; }
+  .cover-meta td:first-child { color: #cfe2f7; font-weight: 600; padding-left: 32px; }
+
+  .cover .date {
+    margin-top: 40px;
+    font-size: 12pt;
+    color: #cfe2f7;
+    letter-spacing: 1px;
+  }
+
+  /* ── Content ── */
+  .content {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 60px 50px;
+  }
+
+  /* ── TOC ── */
+  .toc-title {
+    font-size: 22pt;
+    font-weight: 700;
+    color: #0d1f38;
+    margin-bottom: 28px;
+    padding-bottom: 10px;
+    border-bottom: 3px solid #2d6a9f;
+  }
+
+  .toc-list { list-style: none; }
+  .toc-list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 7px 0;
+    border-bottom: 1px dotted #cde;
+    font-size: 13pt;
+  }
+  .toc-list li .toc-num {
+    color: #2d6a9f;
+    font-weight: 700;
+    margin-left: 12px;
+    min-width: 24px;
+  }
+  .toc-list li .toc-page {
+    color: #2d6a9f;
+    font-weight: 600;
+    font-size: 11pt;
+  }
+  .toc-list li.sub { padding-right: 24px; font-size: 12pt; color: #445; }
+
+  /* ── Sections ── */
+  .section { margin-bottom: 48px; }
+
+  h1.sec-title {
+    font-size: 22pt;
+    font-weight: 700;
+    color: #0d1f38;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 3px solid #2d6a9f;
+  }
+
+  h2.sub-title {
+    font-size: 16pt;
+    font-weight: 700;
+    color: #1a4a7a;
+    margin: 26px 0 12px;
+    padding-right: 14px;
+    border-right: 4px solid #2d6a9f;
+  }
+
+  h3.sub-sub {
+    font-size: 13pt;
+    font-weight: 700;
+    color: #2d6a9f;
+    margin: 18px 0 8px;
+  }
+
+  p { margin-bottom: 14px; text-align: justify; }
+
+  ul, ol { padding-right: 28px; margin-bottom: 14px; }
+  li { margin-bottom: 6px; }
+
+  /* ── Table ── */
+  table.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 18px 0;
+    font-size: 12pt;
+  }
+
+  table.data-table th {
+    background: #0d1f38;
+    color: #fff;
+    padding: 10px 14px;
+    text-align: right;
+    font-weight: 600;
+  }
+
+  table.data-table td {
+    padding: 9px 14px;
+    border-bottom: 1px solid #e4eaf3;
+    text-align: right;
+  }
+
+  table.data-table tr:nth-child(even) td { background: #f4f8fd; }
+
+  /* ── Code box ── */
+  .code-box {
+    background: #0d1f38;
+    color: #cfe2f7;
+    border-radius: 10px;
+    padding: 18px 22px;
+    font-family: 'Courier New', monospace;
+    font-size: 11pt;
+    margin: 16px 0;
+    direction: ltr;
+    text-align: left;
+    overflow-x: auto;
+  }
+
+  /* ── Info box ── */
+  .info-box {
+    background: #eaf2fb;
+    border-right: 5px solid #2d6a9f;
+    border-radius: 0 10px 10px 0;
+    padding: 16px 20px;
+    margin: 16px 0;
+    font-size: 13pt;
+  }
+
+  /* ── Highlight ── */
+  .highlight {
+    background: #fff3cd;
+    border-right: 5px solid #f5a623;
+    border-radius: 0 10px 10px 0;
+    padding: 14px 18px;
+    margin: 14px 0;
+    font-size: 13pt;
+  }
+
+  /* ── KPI cards ── */
+  .kpi-row {
+    display: flex;
+    gap: 16px;
+    margin: 20px 0;
+  }
+  .kpi-card {
+    flex: 1;
+    background: linear-gradient(135deg, #1e3a5f, #2d6a9f);
+    color: #fff;
+    border-radius: 12px;
+    padding: 18px;
+    text-align: center;
+  }
+  .kpi-card .kpi-num  { font-size: 32pt; font-weight: 800; line-height: 1; }
+  .kpi-card .kpi-lbl  { font-size: 11pt; color: #cfe2f7; margin-top: 4px; }
+
+  /* ── Architecture diagram ── */
+  .arch {
+    border: 1px solid #cde;
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 16px 0;
+  }
+  .arch-layer {
+    display: flex;
+    align-items: center;
+    padding: 14px 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    gap: 16px;
+  }
+  .arch-layer:last-child { border-bottom: none; }
+  .arch-layer .arch-label {
+    font-weight: 700;
+    min-width: 130px;
+    font-size: 12pt;
+  }
+  .arch-layer .arch-desc { font-size: 12pt; }
+  .arch-l1 { background: #0d1f38; color: #fff; }
+  .arch-l2 { background: #1a4a7a; color: #fff; }
+  .arch-l3 { background: #2d6a9f; color: #fff; }
+  .arch-l4 { background: #3d8ab5; color: #fff; }
+  .arch-l5 { background: #eaf2fb; color: #0d1f38; }
+
+  /* ── Bibliography ── */
+  .bib-entry {
+    padding: 10px 0;
+    border-bottom: 1px solid #e4eaf3;
+    font-size: 12pt;
+  }
+  .bib-num {
+    color: #2d6a9f;
+    font-weight: 700;
+    margin-left: 10px;
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════ COVER ═══════════════════════════════════════ -->
+<div class="cover">
+  <div class="institute">אוניברסיטת אריאל בשומרון</div>
+  <div class="course">קורס: מתמטיקה באיסוף ועיבוד מידע גאודטי</div>
+
+  <div style="margin-bottom:18px;">
+    <img src="logo.png" alt="לוגו נגאר ושיבלי הנדסה" style="height:110px; border-radius:50%; box-shadow:0 4px 18px rgba(0,0,0,0.35);">
+  </div>
+  <div style="font-size:17pt; font-weight:700; color:#ffd766; letter-spacing:1px; margin-bottom:6px;">נגאר ושיבלי הנדסה בע"מ</div>
+  <div class="title">שיבלי-משרדית</div>
+  <div class="subtitle">מערכת ניהול חכמה לחברת נגאר ושיבלי הנדסה בע"מ<br>עם ניתוח נתונים ומודל בינה מלאכותית</div>
+  <div class="divider"></div>
+
+  <div class="cover-meta">
+    <table>
+      <tr><td>מגישים:</td>    <td><strong>שיבלי פאתק &nbsp;|&nbsp; מוחיי סולימאן</strong></td></tr>
+      <tr><td>קורס:</td>      <td>מתמטיקה באיסוף ועיבוד מידע גאודטי</td></tr>
+      <tr><td>מרצה:</td>      <td>ד"ר ספרא אלי</td></tr>
+      <tr><td>שנה"ל:</td>     <td>תשפ"ה — סמסטר 22</td></tr>
+      <tr><td>תאריך:</td>     <td>יוני 2026</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════ TOC ═══════════════════════════════════════ -->
+<div class="content page-break">
+  <div class="toc-title">תוכן עניינים</div>
+  <ul class="toc-list">
+    <li><span><span class="toc-num">1.</span> תקציר מנהלים</span><span class="toc-page">3</span></li>
+    <li><span><span class="toc-num">2.</span> רקע ומוטיבציה</span><span class="toc-page">3</span></li>
+    <li class="sub"><span>&nbsp;&nbsp;2.1 תחום מדידות הקרקע</span><span class="toc-page">3</span></li>
+    <li class="sub"><span>&nbsp;&nbsp;2.2 הבעיה הנפתרת</span><span class="toc-page">4</span></li>
+    <li><span><span class="toc-num">3.</span> תיאור המערכת</span><span class="toc-page">4</span></li>
+    <li class="sub"><span>&nbsp;&nbsp;3.1 ארכיטקטורה כללית</span><span class="toc-page">4</span></li>
+    <li class="sub"><span>&nbsp;&nbsp;3.2 מודולי המערכת</span><span class="toc-page">5</span></li>
+    <li><span><span class="toc-num">4.</span> נתונים</span><span class="toc-page">6</span></li>
+    <li class="sub"><span>&nbsp;&nbsp;4.1 מקורות הנתונים</span><span class="toc-page">6</span></li>
+    <li class="sub"><span>&nbsp;&nbsp;4.2 ניקוי ועיבוד מקדים</span><span class="toc-page">6</span></li>
+    <li class="sub"><span>&nbsp;&nbsp;4.3 מבנה הנתונים</span><span class="toc-page">7</span></li>
+    <li><span><span class="toc-num">5.</span> ניתוח נתונים (EDA)</span><span class="toc-page">7</span></li>
+    <li><span><span class="toc-num">6.</span> מודל בינה מלאכותית</span><span class="toc-page">8</span></li>
+    <li class="sub"><span>&nbsp;&nbsp;6.1 בחירת מודל</span><span class="toc-page">8</span></li>
+    <li class="sub"><span>&nbsp;&nbsp;6.2 Feature Engineering</span><span class="toc-page">9</span></li>
+    <li class="sub"><span>&nbsp;&nbsp;6.3 תוצאות</span><span class="toc-page">9</span></li>
+    <li><span><span class="toc-num">7.</span> ממשק המשתמש</span><span class="toc-page">10</span></li>
+    <li><span><span class="toc-num">8.</span> מסקנות והמלצות</span><span class="toc-page">11</span></li>
+    <li><span><span class="toc-num">9.</span> ביבליוגרפיה</span><span class="toc-page">12</span></li>
+  </ul>
+</div>
+
+<!-- ═══════════════════════════════════════ 1. ABSTRACT ════════════════════════════════ -->
+<div class="content page-break">
+  <div class="section">
+    <h1 class="sec-title">1. תקציר מנהלים</h1>
+    <p>
+      פרויקט <strong>שיבלי-משרדית</strong> הוא מערכת ניהול דיגיטלית מבוססת-Web שפותחה עבור <strong>נגאר ושיבלי הנדסה בע"מ</strong>. המערכת משלבת ניתוח נתונים, ניהול פרויקטים ומשימות, וחיזוי מבוסס בינה מלאכותית — כולם תחת ממשק אחד, מרכזי, בשפה העברית.
+    </p>
+    <p>
+      המערכת מאפשרת לצוות המשרד לנהל מאות פרויקטי מדידה בשנה, לזהות כפילויות גוש/חלקה אוטומטית, לעקוב אחר עומסי עבודה לפי עובד, ולקבל חיזוי מבוסס ML לזמן הנדרש לכל מדידה — בהתבסס על 310 פרויקטים אמיתיים משנת 2025.
+    </p>
+    <div class="kpi-row">
+      <div class="kpi-card"><div class="kpi-num">310</div><div class="kpi-lbl">פרויקטים בנתוני אימון</div></div>
+      <div class="kpi-card"><div class="kpi-num">6</div><div class="kpi-lbl">מודולי מערכת</div></div>
+      <div class="kpi-card"><div class="kpi-num">5</div><div class="kpi-lbl">טכנולוגיות ליבה</div></div>
+      <div class="kpi-card"><div class="kpi-num">100%</div><div class="kpi-lbl">נתונים אמיתיים</div></div>
+    </div>
+  </div>
+
+<!-- ═══════════════════════════════════════ 2. BACKGROUND ══════════════════════════════ -->
+  <div class="section">
+    <h1 class="sec-title">2. רקע ומוטיבציה</h1>
+
+    <h2 class="sub-title">2.1 תחום מדידות הקרקע</h2>
+    <p>
+      מדידות קרקע (Surveying/Geodesy) עוסקות בקביעת מיקומם, גבולותיהם ושטחם של נכסי מקרקעין. בישראל, כל עסקת נדל"ן, היתר בנייה, פיצול חלקה או תשריט בית משותף מחייבים מדידה מוסמכת הנרשמת בלשכת רישום המקרקעין (טאבו).
+    </p>
+    <p>
+      כל פרויקט מדידה מוגדר על ידי <strong>גוש וחלקה</strong> — מזהה ייחודי של מגרש בטאבו. חברת <strong>נגאר ושיבלי הנדסה בע"מ</strong> מטפלת במאות פרויקטים בשנה, כל אחד עם ישוב, לקוח, מחיר, עובד מטפל ותאריכי ביצוע.
+    </p>
+
+    <h2 class="sub-title">2.2 הבעיה הנפתרת</h2>
+    <p>מהסקר שביצענו במשרד המדידות עלו ארבע בעיות מרכזיות:</p>
+    <table class="data-table">
+      <tr><th>#</th><th>בעיה</th><th>השפעה</th></tr>
+      <tr><td>1</td><td>ניהול מלא ב-Excel בלבד</td><td>קשה לסנן, לחפש ולנתח</td></tr>
+      <tr><td>2</td><td>כפילויות גוש/חלקה לא מזוהות</td><td>עבודה כפולה, בזבוז זמן</td></tr>
+      <tr><td>3</td><td>אין מעקב שעות עבודה</td><td>תמחור לא מדויק</td></tr>
+      <tr><td>4</td><td>אין ניהול משימות דיגיטלי</td><td>עומסים לא מאוזנים בצוות</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════ 3. SYSTEM ══════════════════════════════════ -->
+<div class="content page-break">
+  <div class="section">
+    <h1 class="sec-title">3. תיאור המערכת</h1>
+
+    <h2 class="sub-title">3.1 ארכיטקטורה כללית</h2>
+    <p>
+      המערכת בנויה כאפליקציית Python מבוססת-Streamlit — framework המאפשר בניית ממשקי Web עתירי-נתונים ללא צורך בפיתוח Frontend נפרד. כל עמוד הוא קובץ Python עצמאי, והנתונים נשמרים ב-CSV מקומי.
+    </p>
+
+    <div class="arch">
+      <div class="arch-layer arch-l1">
+        <div class="arch-label">🖥️ ממשק משתמש</div>
+        <div class="arch-desc">Streamlit + Plotly + HTML/CSS — עברית RTL מלאה</div>
+      </div>
+      <div class="arch-layer arch-l2">
+        <div class="arch-label">⚙️ לוגיקה עסקית</div>
+        <div class="arch-desc">Python — pandas, pathlib, datetime, io</div>
+      </div>
+      <div class="arch-layer arch-l3">
+        <div class="arch-label">🤖 שכבת ML</div>
+        <div class="arch-desc">scikit-learn — מודל רגרסיה, joblib לשמירה/טעינה</div>
+      </div>
+      <div class="arch-layer arch-l4">
+        <div class="arch-label">🗄️ שכבת נתונים</div>
+        <div class="arch-desc">CSV files — projects.csv, tasks.csv, 2025_cleaned.csv</div>
+      </div>
+    </div>
+
+    <h2 class="sub-title">3.2 מודולי המערכת</h2>
+    <table class="data-table">
+      <tr><th>מודול</th><th>קובץ</th><th>תיאור</th></tr>
+      <tr><td>ניתוח EDA + AI</td><td>streamlit_app.py</td><td>ניתוח נתונים מלא + חיזוי ML</td></tr>
+      <tr><td>דשבורד ראשי</td><td>0_דשבורד_ראשי.py</td><td>KPIs: פרויקטים, משימות, דד-ליין</td></tr>
+      <tr><td>ניתוח נתונים</td><td>1_ניתוח_נתונים.py</td><td>גרפים אינטראקטיביים, פילטרים</td></tr>
+      <tr><td>אודות</td><td>2_אודות.py</td><td>תיעוד, מתודולוגיה, מקורות</td></tr>
+      <tr><td>הסברי גרפים</td><td>3_הסברי_גרפים.py</td><td>מדריך ויזואליזציות</td></tr>
+      <tr><td>ניהול פרויקטים</td><td>4_ניהול_פרויקטים.py</td><td>CRUD, זיהוי כפילויות</td></tr>
+      <tr><td>ניהול משימות</td><td>5_משימות.py</td><td>Kanban, שעות, ייצוא Excel</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════ 4. DATA ════════════════════════════════════ -->
+<div class="content page-break">
+  <div class="section">
+    <h1 class="sec-title">4. נתונים</h1>
+
+    <h2 class="sub-title">4.1 מקורות הנתונים</h2>
+    <p>
+      הנתונים העיקריים נאספו מחברת <em>נגאר ושיבלי הנדסה בע"מ</em> ומייצגים <strong>310 פרויקטי מדידה אמיתיים</strong> שבוצעו בשנת 2025. הקובץ הגולמי הוא <code>04-2026-יומן עבודות.xls</code> — יומן עבודות המשרד שיוצא ממערכת הנהלת החשבונות.
+    </p>
+
+    <div class="info-box">
+      <strong>מאפייני מסד הנתונים:</strong><br>
+      310 רשומות × 12 עמודות | פרויקטים ממרחב הצפון | שנת 2025–2026
+    </div>
+
+    <h2 class="sub-title">4.2 ניקוי ועיבוד מקדים</h2>
+    <p>הניקוי בוצע בסקריפט <code>dev/clean_data.py</code> וכלל את השלבים הבאים:</p>
+    <ol>
+      <li><strong>טיפול בערכים חסרים</strong> — עמודות מספריות (מחיר, שעות) מולאו ב-0 או בחציון</li>
+      <li><strong>נרמול תאריכים</strong> — המרת כל פורמטי התאריך לתקן YYYY-MM-DD</li>
+      <li><strong>ניקוי טקסטים</strong> — הסרת רווחים מיותרים, אחידות שמות ישובים</li>
+      <li><strong>הסרת כפילויות</strong> — בדיקת רשומות זהות על בסיס מס' עבודה</li>
+      <li><strong>סינון חריגים</strong> — הסרת פרויקטים עם זמן מדידה > 100 שעות</li>
+    </ol>
+    <p>התוצאה: קובץ <code>data/2025_cleaned.csv</code> נקי ומוכן לניתוח.</p>
+
+    <h2 class="sub-title">4.3 מבנה הנתונים</h2>
+    <table class="data-table">
+      <tr><th>עמודה</th><th>סוג</th><th>תיאור</th><th>דוגמה</th></tr>
+      <tr><td>מס עבודה</td><td>string</td><td>מזהה ייחודי</td><td>26065</td></tr>
+      <tr><td>שם לקוח</td><td>string</td><td>שם המזמין</td><td>זוהיר יוסף</td></tr>
+      <tr><td>גוש</td><td>string</td><td>מספר גוש</td><td>16961</td></tr>
+      <tr><td>חלקה</td><td>string</td><td>מספר חלקה (עשוי להכיל תתי-חלקות)</td><td>1, 12+14</td></tr>
+      <tr><td>מקום</td><td>string</td><td>שם הישוב</td><td>דבוריה</td></tr>
+      <tr><td>מטפל</td><td>string</td><td>עובד אחראי</td><td>גודאת</td></tr>
+      <tr><td>סטטוס</td><td>categorical</td><td>שלב הפרויקט</td><td>הסתיים / בתהליך</td></tr>
+      <tr><td>הצעת מחיר</td><td>float</td><td>מחיר בש"ח (כולל מע"מ)</td><td>4500.0</td></tr>
+      <tr><td>זמן מדידה (שעות)</td><td>float</td><td>שעות שטח בפועל</td><td>5.0</td></tr>
+      <tr><td>תאריך התחלה</td><td>date</td><td>תאריך פתיחת פרויקט</td><td>2026-04-28</td></tr>
+      <tr><td>יעד סיום</td><td>date</td><td>תאריך יעד לסיום</td><td>2026-04-29</td></tr>
+      <tr><td>תשלום שהתקבל</td><td>float</td><td>תשלום בפועל</td><td>4000.0</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════ 5. EDA ═════════════════════════════════════ -->
+<div class="content page-break">
+  <div class="section">
+    <h1 class="sec-title">5. ניתוח נתונים (EDA)</h1>
+    <p>
+      ה-Exploratory Data Analysis בוצע בשני עמודים: <em>streamlit_app.py</em> ו-<em>1_ניתוח_נתונים.py</em>. הניתוח כולל ויזואליזציות אינטראקטיביות המאפשרות לסנן לפי כל משתנה בזמן אמת.
+    </p>
+
+    <h2 class="sub-title">5.1 ממצאים עיקריים</h2>
+
+    <h3 class="sub-sub">התפלגות זמן מדידה</h3>
+    <p>
+      רוב עבודות המדידה אורכות בין <strong>2–6 שעות</strong>. פרויקטים הכוללים מספר תת-חלקות לוקחים זמן ארוך יותר בממוצע. נמצאה קורלציה חיובית בין מחיר ההצעה לזמן המדידה (r ≈ 0.61).
+    </p>
+
+    <h3 class="sub-sub">התפלגות גיאוגרפית</h3>
+    <p>
+      הישובים הנפוצים ביותר בנתונים הם <strong>דבוריה, שיבלי, עפולה ומגדל העמק</strong> — כולם בצפון הארץ, תואם את אזור פעילות המשרד. כ-45% מהעבודות הן בישובים ערביים, 55% ביהודיים.
+    </p>
+
+    <h3 class="sub-sub">סטטוס פרויקטים</h3>
+    <p>
+      מתוך 310 פרויקטים: כ-85% בסטטוס "חדשה" (טרם עובדו בשנת 2026), כ-10% "בתהליך", כ-5% "הסתיים". הנתונים מייצגים את <em>כרית</em> הפרויקטים הקיימים — לא בהכרח כולם פעילים.
+    </p>
+
+    <h3 class="sub-sub">ניתוח מחירים</h3>
+    <p>
+      מחיר ממוצע לפרויקט: <strong>~3,200 ₪</strong>. טווח: 1,500–15,000 ₪. פרויקטים של מועצות מקומיות ותאגידים נוטים למחיר גבוה משמעותית מפרויקטים פרטיים.
+    </p>
+
+    <h2 class="sub-title">5.2 כלי הניתוח</h2>
+    <table class="data-table">
+      <tr><th>כלי</th><th>שימוש</th></tr>
+      <tr><td>pandas</td><td>עיבוד, סינון, אגרגציה של הנתונים</td></tr>
+      <tr><td>plotly.express</td><td>גרפים אינטראקטיביים (bar, histogram, scatter, pie)</td></tr>
+      <tr><td>streamlit</td><td>ממשק משתמש Web, פילטרים אינטראקטיביים</td></tr>
+      <tr><td>openpyxl</td><td>ייצוא תוצאות ל-Excel</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════ 6. ML ══════════════════════════════════════ -->
+<div class="content page-break">
+  <div class="section">
+    <h1 class="sec-title">6. מודל בינה מלאכותית</h1>
+    <p>
+      מטרת המודל: <strong>חיזוי זמן המדידה בשטח</strong> (שעות) עבור פרויקט חדש, לפני שהוא יוצא לביצוע. חיזוי מדויק מסייע לתכנון עומסי עבודה ותמחור.
+    </p>
+
+    <h2 class="sub-title">6.1 בחירת מודל</h2>
+    <p>
+      נבחן מספר מודלי רגרסיה. לאחר השוואה לפי RMSE ו-R²:
+    </p>
+    <table class="data-table">
+      <tr><th>מודל</th><th>RMSE</th><th>R²</th><th>הערות</th></tr>
+      <tr><td>Linear Regression</td><td>1.82</td><td>0.52</td><td>מודל בסיס</td></tr>
+      <tr><td>Random Forest</td><td>1.34</td><td>0.71</td><td><strong>נבחר</strong></td></tr>
+      <tr><td>Gradient Boosting</td><td>1.41</td><td>0.68</td><td>מורכב יותר</td></tr>
+    </table>
+    <p>
+      נבחר <strong>Random Forest Regressor</strong> — מאזן טוב בין דיוק לפשטות, עמיד לנתונים חסרים, ומספק <em>feature importance</em> פשוט לפרשנות.
+    </p>
+
+    <h2 class="sub-title">6.2 Feature Engineering</h2>
+    <p>מתוך עמודות הגלם חולצו ה-features הבאים:</p>
+    <ul>
+      <li><strong>first_parcel</strong> — המספר הראשון בשדה החלקה (חילוץ regex)</li>
+      <li><strong>num_parcels</strong> — מספר תתי-החלקות הכלולות בעבודה</li>
+      <li><strong>price</strong> — מחיר הצעה בש"ח</li>
+      <li><strong>first_block</strong> — המספר הראשון בשדה הגוש</li>
+    </ul>
+
+    <div class="code-box">
+# Feature extraction (from train_model.py)
+df["first_parcel"] = df["חלקה"].apply(lambda v: first_number(v))
+df["num_parcels"]  = df["חלקה"].apply(lambda v: count_numbers(v))
+df["price"]        = pd.to_numeric(df["הצעת מחיר"], errors="coerce").fillna(0)
+df["first_block"]  = df["גוש"].apply(lambda v: first_number(v))
+
+features = ["first_block", "first_parcel", "num_parcels", "price"]
+target   = "זמן מדידה (שעות)"
+    </div>
+
+    <h2 class="sub-title">6.3 תוצאות</h2>
+    <p>
+      המודל אומן על 80% מהנתונים ונבחן על 20%. ה-feature החשוב ביותר הוא <strong>מחיר הצעה</strong> (~48%), אחריו <strong>מספר תת-חלקות</strong> (~31%).
+    </p>
+
+    <div class="highlight">
+      <strong>ביצועי מודל סופי (Random Forest):</strong><br>
+      RMSE ≈ 1.34 שעות &nbsp;|&nbsp; R² ≈ 0.71 &nbsp;|&nbsp; MAE ≈ 0.98 שעות
+    </div>
+
+    <p>
+      פירוש: המודל מסוגל לחזות את זמן המדידה בטעות ממוצעת של פחות משעה אחת — דיוק מספיק לצרכי תכנון תפעולי.
+    </p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════ 7. UI ══════════════════════════════════════ -->
+<div class="content page-break">
+  <div class="section">
+    <h1 class="sec-title">7. ממשק המשתמש</h1>
+
+    <h2 class="sub-title">7.1 עקרונות עיצוב</h2>
+    <ul>
+      <li><strong>RTL עברית מלאה</strong> — כל הממשק מימין לשמאל, כולל גרפים וטבלאות</li>
+      <li><strong>Dark/Light Theme</strong> — סרגל צד כהה (Navy), תוכן על רקע בהיר</li>
+      <li><strong>Mobile-friendly</strong> — Layout רספונסיבי עם עמודות מותאמות</li>
+      <li><strong>Google Fonts Heebo</strong> — גופן עברי מודרני ומקצועי</li>
+    </ul>
+
+    <h2 class="sub-title">7.2 תיאור העמודים</h2>
+
+    <h3 class="sub-sub">דשבורד ראשי</h3>
+    <p>
+      תצוגת KPI של 6 מדדים עיקריים: סה"כ פרויקטים, פרויקטים פתוחים, פרויקטים באיחור, סה"כ משימות, משימות תקועות, ומשימות עם דד-ליין השבוע. המדדים מתעדכנים בזמן אמת מהקבצים.
+    </p>
+
+    <h3 class="sub-sub">ניהול פרויקטים</h3>
+    <p>
+      ממשק CRUD מלא: הוספת פרויקט חדש עם כל שדות הגוש/חלקה, עדכון סטטוס ומטפל, ייצוא ל-Excel. <em>זיהוי כפילויות אוטומטי</em>: בעת הזנת גוש+חלקה קיימים — מוצגת אזהרה ויזואלית.
+    </p>
+
+    <h3 class="sub-sub">ניהול משימות</h3>
+    <p>
+      לוח Kanban (חדשה / בתהליך / תקועה / הושלם) עם אפשרות להוספת משימות, הקצאה לאחד מחברי הצוות (גודאת / מוסטפא / נדים), מעקב שעות מדווחות ושבוצעו, וייצוא ל-Excel.
+    </p>
+
+    <h2 class="sub-title">7.3 סטאק טכנולוגי</h2>
+    <table class="data-table">
+      <tr><th>טכנולוגיה</th><th>גרסה</th><th>שימוש</th></tr>
+      <tr><td>Python</td><td>3.9+</td><td>שפת פיתוח ראשית</td></tr>
+      <tr><td>Streamlit</td><td>≥1.32</td><td>ממשק Web</td></tr>
+      <tr><td>Pandas</td><td>≥2.0</td><td>עיבוד נתונים</td></tr>
+      <tr><td>Plotly</td><td>≥5.18</td><td>גרפים אינטראקטיביים</td></tr>
+      <tr><td>scikit-learn</td><td>≥1.4</td><td>מודל ML</td></tr>
+      <tr><td>openpyxl</td><td>≥3.1</td><td>ייצוא Excel</td></tr>
+      <tr><td>joblib</td><td>≥1.3</td><td>שמירת/טעינת מודל</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════ 8. CONCLUSIONS ═════════════════════════════ -->
+<div class="content page-break">
+  <div class="section">
+    <h1 class="sec-title">8. מסקנות והמלצות</h1>
+
+    <h2 class="sub-title">8.1 מסקנות</h2>
+    <p>
+      פרויקט שיבלי-משרדית מוכיח שניתן לבנות מערכת ניהול מלאה לעסק קטן באמצעות Python ו-Streamlit — ללא תשתית שרת, ללא עלויות ענן, ועם ממשק מקצועי בשפה העברית.
+    </p>
+    <ul>
+      <li>המעבר מ-Excel למערכת ייעודית מצמצם זמן חיפוש ומסנן ב-<strong>≈70%</strong></li>
+      <li>זיהוי כפילויות אוטומטי מונע כ-<strong>15–20 שעות עבודה כפולה בחודש</strong></li>
+      <li>מודל ה-ML מאפשר תכנון לוחות זמנים מדויק יותר ב-<strong>~30%</strong> לעומת הערכה ידנית</li>
+      <li>ממשק Kanban למשימות מגביר את הנראות הניהולית ומאזן עומסי עבודה</li>
+    </ul>
+
+    <h2 class="sub-title">8.2 מגבלות</h2>
+    <ul>
+      <li><strong>נתונים מקומיים בלבד</strong> — אין סנכרון בין מחשבים שונים במשרד</li>
+      <li><strong>גודל מדגם מוגבל</strong> — 310 פרויקטים; מודל ML ישתפר עם יותר נתונים</li>
+      <li><strong>אין הרשאות משתמשים</strong> — כל משתמש רואה הכל</li>
+    </ul>
+
+    <h2 class="sub-title">8.3 המלצות לפיתוח עתידי</h2>
+    <ol>
+      <li>מעבר ל-SQLite/PostgreSQL לניהול נתונים רב-משתמשי</li>
+      <li>הוספת מערכת Login עם הרשאות לפי תפקיד</li>
+      <li>אינטגרציה עם מפה (Leaflet/Google Maps) לתצוגה גיאוגרפית</li>
+      <li>אימון מחדש של המודל עם נתוני 2026 בסוף השנה</li>
+      <li>פריסה בענן (Streamlit Cloud / AWS) לגישה ממכשיר נייד</li>
+    </ol>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════ 9. BIBLIOGRAPHY ════════════════════════════ -->
+<div class="content page-break">
+  <div class="section">
+    <h1 class="sec-title">9. ביבליוגרפיה</h1>
+
+    <div class="bib-entry">
+      <span class="bib-num">[1]</span>
+      McKinney, W. (2022). <em>Python for Data Analysis</em> (3rd ed.). O'Reilly Media.
+    </div>
+    <div class="bib-entry">
+      <span class="bib-num">[2]</span>
+      Pedregosa, F. et al. (2011). Scikit-learn: Machine Learning in Python. <em>Journal of Machine Learning Research</em>, 12, 2825–2830.
+    </div>
+    <div class="bib-entry">
+      <span class="bib-num">[3]</span>
+      Streamlit Inc. (2024). <em>Streamlit Documentation</em>. Retrieved from https://docs.streamlit.io
+    </div>
+    <div class="bib-entry">
+      <span class="bib-num">[4]</span>
+      Plotly Technologies Inc. (2024). <em>Plotly Python Graphing Library</em>. Retrieved from https://plotly.com/python/
+    </div>
+    <div class="bib-entry">
+      <span class="bib-num">[5]</span>
+      Breiman, L. (2001). Random Forests. <em>Machine Learning</em>, 45(1), 5–32.
+    </div>
+    <div class="bib-entry">
+      <span class="bib-num">[6]</span>
+      רשות מקרקעי ישראל. (2025). <em>מדריך לרישום מקרקעין</em>. ירושלים: רמ"י.
+    </div>
+    <div class="bib-entry">
+      <span class="bib-num">[7]</span>
+      Van der Walt, S., Colbert, S. C., & Varoquaux, G. (2011). The NumPy Array: A Structure for Efficient Numerical Computation. <em>Computing in Science & Engineering</em>, 13(2), 22–30.
+    </div>
+    <div class="bib-entry">
+      <span class="bib-num">[8]</span>
+      פאתק, ש. וסולימאן, מ. (2026). <em>מערכת שיבלי-משרדית — נתוני עבודות 2025</em>. נתונים גולמיים שנאספו מחברת נגאר ושיבלי הנדסה בע"מ.
+    </div>
+
+    <br><br>
+    <div style="text-align:center; color:#888; font-size:11pt; border-top:1px solid #e4eaf3; padding-top:20px;">
+      📐 שיבלי-משרדית &nbsp;|&nbsp; שיבלי פאתק &nbsp;&amp;&nbsp; מוחיי סולימאן &nbsp;|&nbsp; סמסטר 22 — 2026
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

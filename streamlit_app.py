@@ -11,7 +11,7 @@ except ImportError:
     JOBLIB_OK = False
 
 st.set_page_config(
-    page_title="EDA – משרד מודדים",
+    page_title="EDA – שיבלי-משרדית",
     page_icon="📐",
     layout="wide",
     initial_sidebar_state="expanded",
@@ -72,7 +72,7 @@ html, body, [class*="css"]  { font-family:'Heebo',sans-serif; direction:rtl; }
 # ══════════════════════════════════════════════════════════════════════════════
 # DATA LOADING
 # ══════════════════════════════════════════════════════════════════════════════
-DEFAULT_CSV = Path(__file__).parent / "2025_cleaned.csv"
+DEFAULT_CSV = Path(__file__).parent / "data" / "2025_cleaned.csv"
 MODEL_PATH  = Path(__file__).parent / "models" / "model.pkl"
 
 
@@ -146,7 +146,7 @@ with st.sidebar:
 # ══════════════════════════════════════════════════════════════════════════════
 st.markdown("""
 <div class="hero">
-    <div class="hero-title">📐 EDA – משרד מודדים</div>
+    <div class="hero-title">📐 EDA – שיבלי-משרדית</div>
     <div class="hero-sub">
         ניתוח מקיף של נתוני עבודות המדידה – סטטיסטיקות, התפלגויות,
         ניתוח קטגורי וניתוח צולב אינטראקטיבי
@@ -715,6 +715,6 @@ python train_model.py
 st.markdown("""
 <hr style="border-color:#e8edf4; margin:24px 0 16px">
 <div style="text-align:center; color:#aaa; font-size:.8rem;">
-    📐 EDA Dashboard · משרד מודדים 2025 · Streamlit + Plotly + Pandas
+    📐 EDA Dashboard · שיבלי-משרדית 2025 · Streamlit + Plotly + Pandas
 </div>
 """, unsafe_allow_html=True)
