@@ -252,8 +252,9 @@ with b3:
 bar_df = (
     fdf[[x_num, y_cat]]
     .replace("", pd.NA).dropna()
-    .groupby(y_cat, as_index=False)[x_num]
+    .groupby(y_cat)[x_num]
     .mean()
+    .reset_index()
     .rename(columns={x_num: f"ממוצע {x_num}"})
     .sort_values(f"ממוצע {x_num}", ascending=False)
     .head(top_k)
