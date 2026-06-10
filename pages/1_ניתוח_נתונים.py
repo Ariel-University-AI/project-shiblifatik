@@ -249,14 +249,10 @@ with b2:
 with b3:
     top_k = st.slider("הצג Top K קבוצות", 3, min(30, fdf[y_cat].nunique()), 10, key="b_topk")
 
-_tmp = fdf[[x_num, y_cat]].replace("", pd.NA).dropna()
-bar_df = (
-    _tmp.groupby(y_cat, as_index=True)[x_num]
-    .mean()
-    .reset_index(name=f"ממוצע {x_num}")
-    .sort_values(f"ממוצע {x_num}", ascending=False)
-    .head(top_k)
-)
+_tmp = fdf[[y_cat, x_num]].replace("", pd.NA).dropna()
+_mean = _tmp.groupby(y_cat)[x_num].mean()
+bar_df = pd.DataFrame({y_cat: _mean.index, f"ממוצע {x_num}": _mean.values})
+bar_df = bar_df.sort_values(f"ממוצע {x_num}", ascending=False).head(top_k)
 
 if bar_df.empty:
     st.warning("אין נתונים לגרף.")
