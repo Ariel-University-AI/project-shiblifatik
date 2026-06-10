@@ -249,9 +249,11 @@ with b2:
 with b3:
     top_k = st.slider("הצג Top K קבוצות", 3, min(30, fdf[y_cat].nunique()), 10, key="b_topk")
 
-_tmp = fdf[[y_cat, x_num]].replace("", pd.NA).dropna()
-_mean = _tmp.groupby(y_cat)[x_num].mean()
-bar_df = pd.DataFrame({y_cat: _mean.index, f"ממוצע {x_num}": _mean.values})
+_y_s = fdf[y_cat].replace("", pd.NA)
+_x_s = pd.to_numeric(fdf[x_num], errors="coerce")
+_tmp = pd.DataFrame({"__y__": _y_s, "__x__": _x_s}).dropna()
+_mean = _tmp.groupby("__y__")["__x__"].mean()
+bar_df = pd.DataFrame({y_cat: _mean.index.tolist(), f"ממוצע {x_num}": _mean.values})
 bar_df = bar_df.sort_values(f"ממוצע {x_num}", ascending=False).head(top_k)
 
 if bar_df.empty:
